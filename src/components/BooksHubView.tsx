@@ -719,9 +719,9 @@ export function BooksHubView({
       {/* Header */}
       <header className="space-y-6">
         <TabEditorialHero
-          imageUrl="/src/assets/images/autumn_library_hero_1794870054293.jpg"
-          imageAlt="Mesa de leitura em biblioteca aconchegante com livro aberto, xícara de chá e estantes ao fundo"
-          objectPositionClass="object-[center_55%]"
+          imageUrl="/assets/aistudio/5abfe0b2a2030793bd9721d11ce82ae6_7e075b5d.jpg"
+          imageAlt="Estante aconchegante com pilhas de livros clássicos e romances"
+          objectPositionClass="object-center"
           kickerIcon={<Library className="w-3.5 h-3.5 text-[#F2B880]" />}
           kicker="Biblioteca Literária · Thinklive"
           title="Livros"

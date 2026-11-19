@@ -18,7 +18,12 @@ let clientCredentialsCache: { accessToken: string; expiresAt: number } | null = 
 export function getSpotifyConfig() {
   const clientId = (process.env.SPOTIFY_CLIENT_ID || '').trim();
   const clientSecret = (process.env.SPOTIFY_CLIENT_SECRET || '').trim();
-  const appUrl = (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
+  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : '';
+  const appUrl = (process.env.APP_URL || vercelUrl || 'http://localhost:3000').replace(/\/+$/, '');
   const redirectUri = `${appUrl}/api/spotify/callback`;
   return {
     clientId,

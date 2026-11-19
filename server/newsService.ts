@@ -33,7 +33,11 @@ const ALL_SOURCES: NewsSourceName[] = [
   'Agência Brasil',
 ];
 
-const NEWS_CACHE_FILE = path.resolve(process.cwd(), 'data', 'news-cache.json');
+const BUNDLED_NEWS_CACHE_FILE = path.resolve(process.cwd(), 'data', 'news-cache.json');
+const NEWS_CACHE_FILE =
+  process.env.VERCEL || process.env.NOW_REGION
+    ? path.join('/tmp', 'thinklive-data', 'news-cache.json')
+    : BUNDLED_NEWS_CACHE_FILE;
 const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
 const NAMED_ENTITIES: Record<string, string> = {
@@ -286,8 +290,13 @@ export function subscribeNewsUpdates(fn: NewsListener): () => void {
 
 function loadCachedNews() {
   try {
-    if (fs.existsSync(NEWS_CACHE_FILE)) {
-      const parsed = JSON.parse(fs.readFileSync(NEWS_CACHE_FILE, 'utf-8')) as {
+    const cacheFile = fs.existsSync(NEWS_CACHE_FILE)
+      ? NEWS_CACHE_FILE
+      : fs.existsSync(BUNDLED_NEWS_CACHE_FILE)
+        ? BUNDLED_NEWS_CACHE_FILE
+        : null;
+    if (cacheFile) {
+      const parsed = JSON.parse(fs.readFileSync(cacheFile, 'utf-8')) as {
         articles?: NewsArticle[];
         lastSyncedAt?: string | null;
         sourceStatuses?: NewsSourceStatus[];
@@ -298,6 +307,12 @@ function loadCachedNews() {
     }
   } catch {
     // ignore corrupt cache
+  }
+}
+
+export function ensureNewsLoaded() {
+  if (state.articles.length === 0) {
+    loadCachedNews();
   }
 }
 

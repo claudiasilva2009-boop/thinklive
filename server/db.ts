@@ -51,13 +51,21 @@ export interface DatabaseSchema {
   podcastStates: UserPodcastState[];
 }
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+export const IS_VERCEL = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+export const BUNDLED_DATA_DIR = path.resolve(process.cwd(), 'data');
+const DATA_DIR = IS_VERCEL ? path.join('/tmp', 'thinklive-data') : BUNDLED_DATA_DIR;
 const DB_FILE = path.join(DATA_DIR, 'thinklive-db.json');
+const BUNDLED_DB_FILE = path.join(BUNDLED_DATA_DIR, 'thinklive-db.json');
 export const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+export const BUNDLED_UPLOADS_DIR = path.join(BUNDLED_DATA_DIR, 'uploads');
 
 export function ensureDataDirs() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  } catch {
+    // Ignore directory creation errors on read-only environments
+  }
 }
 
 export function hashPassword(password: string): string {
@@ -750,9 +758,15 @@ let dbCache: DatabaseSchema | null = null;
 export function getDb(): DatabaseSchema {
   if (dbCache) return dbCache;
   ensureDataDirs();
-  if (fs.existsSync(DB_FILE)) {
+  const sourceDbFile = fs.existsSync(DB_FILE)
+    ? DB_FILE
+    : fs.existsSync(BUNDLED_DB_FILE)
+      ? BUNDLED_DB_FILE
+      : null;
+
+  if (sourceDbFile) {
     try {
-      const raw = fs.readFileSync(DB_FILE, 'utf-8');
+      const raw = fs.readFileSync(sourceDbFile, 'utf-8');
       dbCache = JSON.parse(raw) as DatabaseSchema;
       let changed = false;
       if (!Array.isArray(dbCache.mediaReviews)) {
@@ -909,9 +923,13 @@ export function getDb(): DatabaseSchema {
 export function saveDb(): void {
   ensureDataDirs();
   if (!dbCache) return;
-  const tmpFile = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tmpFile, JSON.stringify(dbCache, null, 2), 'utf-8');
-  fs.renameSync(tmpFile, DB_FILE);
+  try {
+    const tmpFile = `${DB_FILE}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(dbCache, null, 2), 'utf-8');
+    fs.renameSync(tmpFile, DB_FILE);
+  } catch {
+    // Keep in-memory state alive even if disk write fails on serverless
+  }
 }
 
 export function toPublicUser(user: UserRecord, viewerId?: string | null): UserPublic {

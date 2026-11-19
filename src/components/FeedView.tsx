@@ -226,9 +226,9 @@ export function FeedView({
         /* Category Editorial Hero Banner (Artigos & outros cadernos) */
         <div className="max-w-6xl mx-auto px-4 md:px-8 pt-6">
           <TabEditorialHero
-            imageUrl="/src/assets/images/editorial_literary_salon_hero_1795033102058.jpg"
-            imageAlt="Sala de leitura e escrita editorial com mesa de madeira e luz suave"
-            objectPositionClass="object-[center_55%]"
+            imageUrl="/assets/aistudio/1dcb9dbf398dde09947570b2fd7fbd6b_3d5a5165.jpg"
+            imageAlt="Caderno aberto manuscrito com caneta, fones de ouvido e xícara de chá sobre mesa de madeira"
+            objectPositionClass="object-center"
             kickerIcon={<AutumnLeafAccent className="w-3.5 h-3.5 text-[#F2B880]" />}
             kicker="Caderno Editorial · Thinklive"
             title={category}
