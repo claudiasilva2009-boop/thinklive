@@ -1,0 +1,6 @@
+{
+  "name": "Thinklive",
+  "description": "Plataforma social, cultural e literária para escritores, leitores, cinéfilos, melômanos e fotógrafos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

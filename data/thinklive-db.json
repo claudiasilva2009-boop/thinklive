@@ -1,0 +1,1634 @@
+{
+  "users": [
+    {
+      "id": "demo_user_clara",
+      "username": "caderno_atlantico",
+      "email": "demo@thinklive.app",
+      "passwordHash": "90562044ac38826c1f08ef2a7550ddf0:dca5d8728f8c26480da9ef23cc033e3352dd62b34405c6df1df8ce05e6c67c27ca9d36b306847576680bb4d27a7d4d2cc6ee31b4b654c8475f5af0ca4c1ed0aa",
+      "displayName": "Clara Vasconcelos (Demo)",
+      "bio": "Ensaísta fictícia de demonstração. Escreve sobre literatura contemporânea, cinema lento e fotografia analógica.",
+      "avatarUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPrivate": false,
+      "isDemo": true,
+      "preferences": {
+        "favoriteCategories": [
+          "Poemas",
+          "Artigos",
+          "Livros"
+        ],
+        "emailNotifications": true
+      },
+      "customization": {
+        "bannerUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+        "epigraph": "“Toda biblioteca é um retrato inacabado de quem a reúne.” — Perfil de demonstração",
+        "links": [
+          {
+            "id": "lnk_1",
+            "label": "Ensaios de Outono (Demo)",
+            "url": "https://thinklive.example/ensaios"
+          }
+        ],
+        "theme": {
+          "id": "pink-diary",
+          "name": "Pink Diary",
+          "backgroundColor": "#F5E9E8",
+          "surfaceColor": "#FFF9F5",
+          "textColor": "#493039",
+          "mutedColor": "#57534E",
+          "buttonBg": "#B65B76",
+          "buttonText": "#FFF9F5",
+          "accentColor": "#803C50",
+          "nameFont": "cormorant",
+          "bioFont": "lora",
+          "fontSize": "md",
+          "cardStyle": "diary",
+          "backgroundTexture": "paper",
+          "ornamentStyle": "pressed_flowers"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true,
+        "avatarPosition": "center",
+        "bannerFilter": "vintage",
+        "bannerPositionY": 35,
+        "favoriteQuoteAuthor": "Clarice Lispector",
+        "shelfConfig": {
+          "woodTone": "clara",
+          "backdropTone": "rosa_antigo",
+          "bookSize": "medio",
+          "spacing": "equilibrado",
+          "displayMode": "capas_3d",
+          "itemsPerRow": 5,
+          "categoryLabels": {
+            "livros": "Meus livros",
+            "filmes": "Filmes",
+            "series": "Séries",
+            "animes": "Animes"
+          }
+        }
+      },
+      "createdAt": "2026-11-06T20:31:14.110Z",
+      "passwordHint": "Nome da plataforma em minúsculas + 123 (thinklive123)",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    },
+    {
+      "id": "demo_user_mateus",
+      "username": "sala_de_projecao",
+      "email": "cinema.demo@thinklive.app",
+      "passwordHash": "ba55c62b50b18ffb07262ff2604674b0:ae7c7a5e5b4224aea50b1c9f9fb0bbdc6f516bf1ad572f110da613d9239b692ee57176f7724c09dca7c63da5cf5c6a26b0acc69889a4cbc7e18f72978c7bb199",
+      "displayName": "Mateus Nogueira (Demo)",
+      "bio": "Crítico cultural fictício para demonstração da Thinklive. Diários de cinema, discos de jazz e crônicas noturnas.",
+      "avatarUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPrivate": false,
+      "isDemo": true,
+      "preferences": {
+        "favoriteCategories": [
+          "Filmes & Séries",
+          "Músicas",
+          "Fotografia"
+        ],
+        "emailNotifications": true
+      },
+      "customization": {
+        "bannerUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+        "epigraph": "Anotações de cabine de projeção e cadernos de vinil. (Perfil de demonstração)",
+        "links": [],
+        "theme": {
+          "id": "estudio-sepia",
+          "name": "Estúdio Sépia",
+          "backgroundColor": "#F6EFE6",
+          "surfaceColor": "#EADFD1",
+          "textColor": "#2B2118",
+          "mutedColor": "#695544",
+          "buttonBg": "#6B4226",
+          "buttonText": "#FAF5EE",
+          "accentColor": "#8B5A2B",
+          "nameFont": "playfair",
+          "bioFont": "manrope",
+          "fontSize": "md"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true
+      },
+      "createdAt": "2026-11-07T16:31:14.110Z",
+      "passwordHint": "Nome da plataforma em minúsculas + 123 (thinklive123)",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    },
+    {
+      "id": "demo_user_arquivo",
+      "username": "arquivo_sonoro",
+      "email": "musica.demo@thinklive.app",
+      "passwordHash": "894a9a266cbb2a52464e7cd70f673558:086b8b1d139ed943e7fe0526bcbee0831455d207691fd051c62289f5b19ee416dca9c9e96196d647dc1bff1922e0f509fce121e9bb4f4f2935f56a76fafdecb2",
+      "displayName": "Helena Prado (Demo)",
+      "bio": "Curadoria musical e resenhas literárias fictícias de demonstração editorial na Thinklive.",
+      "avatarUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPrivate": false,
+      "isDemo": true,
+      "preferences": {
+        "favoriteCategories": [
+          "Músicas",
+          "Livros",
+          "Arte e cultura"
+        ],
+        "emailNotifications": false
+      },
+      "customization": {
+        "bannerUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+        "epigraph": "Lado A para a manhã, Lado B para a chuva. (Perfil de demonstração)",
+        "links": [],
+        "theme": {
+          "id": "caderno-campo",
+          "name": "Caderno de Campo",
+          "backgroundColor": "#F5F5F0",
+          "surfaceColor": "#E9EAE0",
+          "textColor": "#1F241D",
+          "mutedColor": "#51594D",
+          "buttonBg": "#2F422B",
+          "buttonText": "#F5F5F0",
+          "accentColor": "#3E5B37",
+          "nameFont": "fraunces",
+          "bioFont": "jakarta",
+          "fontSize": "md"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true
+      },
+      "createdAt": "2026-11-08T12:31:14.110Z",
+      "passwordHint": "Nome da plataforma em minúsculas + 123 (thinklive123)",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    },
+    {
+      "id": "usr_c227d61fc8f6",
+      "username": "silvalzi",
+      "email": "horranaclaudia913@gmail.com",
+      "passwordHash": "543ea5b1716acef104a7b5d7dec0295d:12707c01f3cab1094bc28c142af1522ca8ecb91996b5843f5cb1e8da69f8140c07a6eb1b1f4160b3f7aaf03c156618327003cf003a775a41fb0bc22aeb52eef9",
+      "passwordHint": "",
+      "displayName": "silva",
+      "bio": "",
+      "avatarUrl": "/uploads/avatar_1794862484227_ebe5df.jpg",
+      "isPrivate": false,
+      "isDemo": false,
+      "preferences": {
+        "favoriteCategories": [
+          "Poemas",
+          "Artigos",
+          "Livros"
+        ],
+        "emailNotifications": true
+      },
+      "customization": {
+        "bannerUrl": "/uploads/banner_1794862496515_a6efc7.jpg",
+        "epigraph": "Escrevendo entre livros sublinhados, cinema silencioso e cafés da tarde.",
+        "links": [],
+        "theme": {
+          "id": "primavera-botanica",
+          "name": "Primavera Botânica",
+          "backgroundColor": "#F1E3E7",
+          "surfaceColor": "#FBF5F6",
+          "textColor": "#422631",
+          "mutedColor": "#6B4B57",
+          "buttonBg": "#B0536E",
+          "buttonText": "#FBF5F6",
+          "accentColor": "#86384F",
+          "nameFont": "playfair",
+          "bioFont": "lora",
+          "fontSize": "md",
+          "buttonStyle": "rounded"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true,
+        "seasonTheme": "primavera"
+      },
+      "createdAt": "2026-11-16T20:53:59.902Z",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    },
+    {
+      "id": "usr_8f9e170a27aa",
+      "username": "silvasi_",
+      "email": "claudia.silva.2009@aluno.edu.pi.gov.br",
+      "passwordHash": "d06abeb4ea0289d949217b4683998416:cb7380e8d032f116fafa01992aeec3e121ba27a11e44dd39369702ea56593cdfaa9e67d8a5624db6e79eb677d7e38acd385fbfe31401c3ac338fa1e194462e41",
+      "passwordHint": "",
+      "displayName": "silva",
+      "bio": "Novo espaço na Thinklive.",
+      "avatarUrl": "",
+      "isPrivate": false,
+      "isDemo": false,
+      "preferences": {
+        "favoriteCategories": [
+          "Poemas",
+          "Artigos",
+          "Livros"
+        ],
+        "emailNotifications": true
+      },
+      "customization": {
+        "seasonTheme": "outono",
+        "bannerUrl": "/src/assets/images/autumn_library_hero_1794870054293.jpg",
+        "epigraph": "Escrevendo entre livros sublinhados, cinema silencioso e tardes de outono.",
+        "links": [],
+        "theme": {
+          "id": "outono-literario",
+          "name": "Outono Literário",
+          "backgroundColor": "#E7D7C2",
+          "surfaceColor": "#F3EBDD",
+          "textColor": "#563A2C",
+          "mutedColor": "#765A49",
+          "buttonBg": "#C47743",
+          "buttonText": "#F3EBDD",
+          "accentColor": "#98512F",
+          "nameFont": "cormorant",
+          "bioFont": "lora",
+          "fontSize": "md",
+          "buttonStyle": "rounded"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true
+      },
+      "createdAt": "2026-11-17T10:30:21.242Z",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    },
+    {
+      "id": "usr_82b55d42ad44",
+      "username": "teste_estante_1794912732953",
+      "email": "teste_1794912732953@thinklive.test",
+      "passwordHash": "a30acb4e12f1ee13cd34f1e136c4503b:5d5ae2ea71c6d8e4a12abff1e420db40475fa420707798f1542d9a775394131b5911446571417c93108f3a16e95610dc6544151a3fe6d4bf544d81cbc503214f",
+      "passwordHint": "",
+      "displayName": "teste_estante_1794912732953",
+      "bio": "Novo espaço na Thinklive.",
+      "avatarUrl": "",
+      "isPrivate": false,
+      "isDemo": false,
+      "preferences": {
+        "favoriteCategories": [
+          "Poemas",
+          "Artigos",
+          "Livros"
+        ],
+        "emailNotifications": true
+      },
+      "customization": {
+        "seasonTheme": "outono",
+        "bannerUrl": "/src/assets/images/autumn_library_hero_1794870054293.jpg",
+        "epigraph": "Escrevendo entre livros sublinhados, cinema silencioso e tardes de outono.",
+        "links": [],
+        "theme": {
+          "id": "outono-literario",
+          "name": "Outono Literário",
+          "backgroundColor": "#E7D7C2",
+          "surfaceColor": "#F3EBDD",
+          "textColor": "#563A2C",
+          "mutedColor": "#765A49",
+          "buttonBg": "#C47743",
+          "buttonText": "#F3EBDD",
+          "accentColor": "#98512F",
+          "nameFont": "cormorant",
+          "bioFont": "lora",
+          "fontSize": "md",
+          "buttonStyle": "rounded"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true
+      },
+      "createdAt": "2026-11-17T10:52:13.132Z",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    },
+    {
+      "id": "usr_261f6299ead5",
+      "username": "teste_estante_1794912778714",
+      "email": "teste_1794912778714@thinklive.test",
+      "passwordHash": "30c2920a7cf7fe2193d7d80b5bd930d4:7bc9b77fbf9f5b705497d430ed8a1cb168bcb7f7c3fba06d008bf8dc8f6695a48bc79ca4e70d8eaa96f9f8461346439111fe4d501871b20147e2269c1c11bcc2",
+      "passwordHint": "",
+      "displayName": "teste_estante_1794912778714",
+      "bio": "Novo espaço na Thinklive.",
+      "avatarUrl": "",
+      "isPrivate": false,
+      "isDemo": false,
+      "preferences": {
+        "favoriteCategories": [
+          "Poemas",
+          "Artigos",
+          "Livros"
+        ],
+        "emailNotifications": true
+      },
+      "customization": {
+        "seasonTheme": "outono",
+        "bannerUrl": "/src/assets/images/autumn_library_hero_1794870054293.jpg",
+        "epigraph": "Escrevendo entre livros sublinhados, cinema silencioso e tardes de outono.",
+        "links": [],
+        "theme": {
+          "id": "outono-literario",
+          "name": "Outono Literário",
+          "backgroundColor": "#E7D7C2",
+          "surfaceColor": "#F3EBDD",
+          "textColor": "#563A2C",
+          "mutedColor": "#765A49",
+          "buttonBg": "#C47743",
+          "buttonText": "#F3EBDD",
+          "accentColor": "#98512F",
+          "nameFont": "cormorant",
+          "bioFont": "lora",
+          "fontSize": "md",
+          "buttonStyle": "rounded"
+        },
+        "savedThemes": [],
+        "sectionOrder": [
+          "bio",
+          "links",
+          "cultural",
+          "music_library",
+          "shelves",
+          "posts"
+        ],
+        "hiddenSections": [],
+        "showCulturalStats": true,
+        "showFollowerCount": true
+      },
+      "createdAt": "2026-11-17T10:52:58.881Z",
+      "musicLibrary": {
+        "favoriteTrack": null,
+        "favoriteArtists": [],
+        "favoriteAlbums": [],
+        "playlists": [],
+        "collections": []
+      }
+    }
+  ],
+  "posts": [
+    {
+      "id": "post_demo_poem_3",
+      "authorId": "demo_user_clara",
+      "type": "poema",
+      "category": "Poemas",
+      "title": "Cartas que não pedem resposta",
+      "subtitle": "Para guardar entre rosas secas e papel de algodão",
+      "content": "Há palavras que nascem apenas para habitar a margem,\ncomo flores secas esquecidas dentro de um livro antigo.\nNão pedem retorno nem pressa ao destinatário:\nbasta-lhes o peso leve da tinta sobre o papel\ne uma tarde mansa onde o vento saiba esperar.",
+      "coverImage": "/src/assets/images/poem_ink_garden_1795044265414.jpg",
+      "imageCaption": "Papel artesanal, rosas secas e pena de latão.",
+      "ambientSoundId": "violao",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 7,
+      "createdAt": "2026-11-18T14:10:00.000Z",
+      "updatedAt": "2026-11-18T14:10:00.000Z"
+    },
+    {
+      "id": "post_demo_1",
+      "authorId": "demo_user_clara",
+      "type": "artigo",
+      "category": "Artigos",
+      "title": "A arquitetura da leitura lenta em tempos de rolagem infinita",
+      "subtitle": "Por que voltar ao ritmo da revista impressa transforma a maneira como pensamos e dialogamos online.",
+      "content": "Entrar em uma sala de leitura silenciosa tem algo de contracultural. Quando abrimos uma revista literária ou nos sentamos diante de uma estante bem cuidada, o tempo deixa de ser fragmentado por notificações apressadas e recupera sua espessura.\n\nNa escrita contemporânea, o ensaio breve e a crônica cotidiana cumprem um papel precioso: permitem que ideias amadureçam entre uma xícara de café e uma anotação à margem. Não escrevemos apenas para responder ao instante, mas para construir memória compartilhada.\n\nAo reunir poemas, resenhas de cinema, cadernos de música e ensaios visuais em um mesmo espaço, recuperamos a antiga convivência das livrarias independentes: lugares onde um livro puxa um filme, que desperta a lembrança de um disco.",
+      "coverImage": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "imageCaption": "Fig. 1 — Sala de leitura à tarde (imagem ilustrativa de demonstração).",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 14,
+      "createdAt": "2026-11-16T14:31:14.110Z",
+      "updatedAt": "2026-11-16T14:31:14.110Z"
+    },
+    {
+      "id": "post_demo_2",
+      "authorId": "demo_user_clara",
+      "type": "poema",
+      "category": "Poemas",
+      "title": "Inventário da tarde sobre a mesa de calcário",
+      "subtitle": "Caderno de versos breves",
+      "content": "Resta na folha aberta\no traço quase invisível da janela,\num ramo de oliveira colhido antes da chuva\ne o peso calmo do latão sobre o papel.\n\nNada pede pressa quando a luz inclina:\naté as palavras aprendem\na descansar entre duas linhas\ncomo quem dobra um mapa depois da viagem.",
+      "coverImage": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "imageCaption": "Caderno aberto — demonstração poética.",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 9,
+      "createdAt": "2026-11-16T06:31:14.110Z",
+      "updatedAt": "2026-11-16T06:31:14.110Z",
+      "ambientSoundId": "piano"
+    },
+    {
+      "id": "post_demo_3",
+      "authorId": "demo_user_mateus",
+      "type": "fotografia",
+      "category": "Fotografia",
+      "title": "Depois da chuva no Café du Soir",
+      "subtitle": "Registro em 35mm em preto e branco sobre pedras molhadas.",
+      "content": "Há momentos na cidade em que o asfalto funciona como espelho de memória. A vitrine embaçada do café ao fundo contrasta com o passo solitário sob o guarda-chuva, criando um quadro que parece suspenso fora do calendário.\n\nFotografado com lente 35mm, priorizando a textura das pedras úmidas e a luz difusa do entardecer.",
+      "coverImage": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "imageCaption": "Série Noturnos Urbanos — Fotografia de demonstração.",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 11,
+      "createdAt": "2026-11-16T00:31:14.110Z",
+      "updatedAt": "2026-11-16T00:31:14.110Z"
+    },
+    {
+      "id": "post_demo_4",
+      "authorId": "demo_user_mateus",
+      "type": "resenha",
+      "category": "Filmes & Séries",
+      "title": "Dias Perfeitos (Perfect Days): a poesia dos gestos mínimos",
+      "subtitle": "Uma meditação luminosa de Wim Wenders sobre rotina, fitas cassete e atenção.",
+      "content": "Poucos filmes recentes conseguem transformar a repetição cotidiana em experiência transcendente sem recorrer a artifícios melodramáticos. Acompanhando Hirayama pelas manhãs de Tóquio, aprendemos a observar a luz filtrada pelas copas das árvores — komorebi — como um acontecimento único a cada dia.\n\nA trilha em fitas cassete funciona como extensão da memória afetiva do protagonista, enquanto os livros de bolso comprados em sebos ancoram suas noites em uma serenidade rara no cinema atual.",
+      "coverImage": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "reviewMeta": {
+        "mediaType": "filme",
+        "workTitle": "Perfect Days",
+        "creator": "Wim Wenders",
+        "year": "2023",
+        "rating": 5
+      },
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 18,
+      "createdAt": "2026-11-15T12:31:14.110Z",
+      "updatedAt": "2026-11-15T12:31:14.110Z"
+    },
+    {
+      "id": "post_demo_5",
+      "authorId": "demo_user_arquivo",
+      "type": "resenha",
+      "category": "Músicas",
+      "title": "Escuta atenta: discos que pedem o álbum inteiro sem pular faixas",
+      "subtitle": "Notas sobre o álbum Autumn Vibrations e o retorno do formato Lado A / Lado B.",
+      "content": "Ouvir um disco do início ao fim hoje exige uma pequena decisão arquitetônica: afastar o telefone, escolher um fone confortável e aceitar a sequência pensada pelo artista.\n\nAs texturas acústicas ganham respiração própria quando não são interrompidas por playlists algorítmicas. Há silêncios entre a terceira e a quarta faixa que fazem parte da composição tanto quanto os acordes de violão e piano.",
+      "coverImage": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "reviewMeta": {
+        "mediaType": "album",
+        "workTitle": "Autumn Vibrations (Demo)",
+        "creator": "Quarteto Atlântico (Fictício)",
+        "year": "2025",
+        "rating": 4.5
+      },
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 7,
+      "createdAt": "2026-11-15T00:31:14.110Z",
+      "updatedAt": "2026-11-15T00:31:14.110Z"
+    },
+    {
+      "id": "post_demo_6",
+      "authorId": "demo_user_arquivo",
+      "type": "resenha",
+      "category": "Livros",
+      "title": "Reler Ao Farol em edições de pano e margens anotadas",
+      "subtitle": "Notas de releitura sobre tempo interior, memória familiar e o ritmo das frases de Virginia Woolf.",
+      "content": "Certos romances mudam completamente conforme a estação da vida em que os reabrimos. Na primeira leitura, buscamos a trama; na segunda ou terceira, passamos a escutar a cadência das vírgulas e o modo como um único almoço à beira-mar contém décadas inteiras.\n\nOrganizar a própria estante com edições que permitem anotações a lápis transforma cada livro em conversa prolongada com nossa versão anterior.",
+      "coverImage": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "reviewMeta": {
+        "mediaType": "livro",
+        "workTitle": "Ao Farol (To the Lighthouse)",
+        "creator": "Virginia Woolf",
+        "year": "1927",
+        "rating": 5
+      },
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 16,
+      "createdAt": "2026-11-14T12:31:14.110Z",
+      "updatedAt": "2026-11-14T12:31:14.110Z"
+    },
+    {
+      "id": "post_demo_7",
+      "authorId": "demo_user_clara",
+      "type": "noticia",
+      "category": "Notícias",
+      "title": "Mostras independentes de livrarias de bairro ampliam clubes de leitura presenciais",
+      "subtitle": "Panorama cultural de iniciativas que unem pequenas editoras, cineclubes e saraus literários.",
+      "content": "Ao longo dos últimos meses, livrarias independentes e centros culturais de médio porte têm apostado em programações híbridas que misturam lançamentos de poesia, exibições comentadas de cinema clássico e oficinas de encadernação artesanal.\n\nO público jovem tem buscado espaços onde a conversa continue depois da última página, sem a pressa das redes convencionais.",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 6,
+      "createdAt": "2026-11-13T20:31:14.110Z",
+      "updatedAt": "2026-11-13T20:31:14.110Z"
+    },
+    {
+      "id": "post_demo_8",
+      "authorId": "demo_user_clara",
+      "type": "diario",
+      "category": "Diários",
+      "title": "Notas de fim de tarde sobre silêncio e cadernos em branco",
+      "content": "Abri a janela às cinco e meia e o vento trouxe cheiro de terra molhada antes mesmo da primeira gota. Às vezes basta anotar três frases honestas antes de fechar o dia para devolver contorno ao que parecia disperso.",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 5,
+      "createdAt": "2026-11-18T10:21:20.087Z",
+      "updatedAt": "2026-11-18T10:21:20.087Z"
+    },
+    {
+      "id": "post_demo_9",
+      "authorId": "demo_user_mateus",
+      "type": "fotografia",
+      "category": "Fotografia",
+      "title": "Última luz no terraço em filme instantâneo",
+      "subtitle": "Retrato espontâneo entre amigas ao pôr do sol.",
+      "content": "Sem posar nem repetir o clique: a luz alaranjada durou menos de quatro minutos antes de o céu virar índigo.",
+      "coverImage": "/src/assets/images/polaroid_rooftop_friends_1794866428102.jpg",
+      "imageCaption": "Filme instantâneo 600 — Arquivo de demonstração.",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 13,
+      "createdAt": "2026-11-18T03:21:20.087Z",
+      "updatedAt": "2026-11-18T03:21:20.087Z"
+    },
+    {
+      "id": "post_demo_10",
+      "authorId": "demo_user_arquivo",
+      "type": "poema",
+      "category": "Poemas",
+      "title": "Geografia mínima da chuva na vidraça",
+      "content": "Cada gota inventa um rio breve\nque não sabe o nome do mar,\ne ainda assim desce o vidro\ncomo quem cumpre uma promessa inteira\nno intervalo de um suspiro.",
+      "ambientSoundId": "chuva_janela",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 15,
+      "createdAt": "2026-11-17T20:21:20.087Z",
+      "updatedAt": "2026-11-17T20:21:20.087Z",
+      "coverImage": "/src/assets/images/poem_rain_window_1795044264984.jpg",
+      "imageCaption": "Gotas na vidraça ao entardecer — caderno de outono."
+    },
+    {
+      "id": "post_demo_11",
+      "authorId": "demo_user_mateus",
+      "type": "resenha",
+      "category": "Filmes & Séries",
+      "title": "Normal People e a coreografia do não dito",
+      "subtitle": "Como enquadramentos próximos transformam hesitações em linguagem cinematográfica.",
+      "content": "Mais do que uma história sobre desencontros entre Dublin e Sligo, a série observa o modo como dois jovens aprendem a respirar no mesmo cômodo sem conseguir nomear o próprio afeto.",
+      "coverImage": "/src/assets/images/cinema_projector_night_1794866429083.jpg",
+      "reviewMeta": {
+        "mediaType": "serie",
+        "workTitle": "Normal People",
+        "creator": "Lenny Abrahamson & Hettie Macdonald",
+        "year": "2020",
+        "rating": 4.5
+      },
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 12,
+      "createdAt": "2026-11-17T06:21:20.087Z",
+      "updatedAt": "2026-11-17T06:21:20.087Z"
+    },
+    {
+      "id": "post_demo_12",
+      "authorId": "demo_user_arquivo",
+      "type": "arte_cultura",
+      "category": "Arte e cultura",
+      "title": "Ateliês independentes, zines e a volta da risografia artesanal",
+      "subtitle": "Por que publicações impressas em duas cores seguem fascinando leitores jovens.",
+      "content": "Entre papéis texturizados, tintas vegetais e tiragens numeradas, o zine continua sendo um território livre para experimentar imagem e palavra fora da padronização digital.",
+      "coverImage": "/src/assets/images/zine_art_studio_1794866430762.jpg",
+      "imageCaption": "Mesa de estúdio e zines — demonstração cultural.",
+      "status": "published",
+      "isDemo": true,
+      "sharesCount": 8,
+      "createdAt": "2026-11-16T18:21:20.087Z",
+      "updatedAt": "2026-11-16T18:21:20.087Z"
+    }
+  ],
+  "likes": [
+    {
+      "userId": "demo_user_mateus",
+      "postId": "post_demo_1",
+      "createdAt": "2026-11-16T15:31:14.110Z"
+    },
+    {
+      "userId": "demo_user_arquivo",
+      "postId": "post_demo_1",
+      "createdAt": "2026-11-16T16:31:14.110Z"
+    },
+    {
+      "userId": "demo_user_clara",
+      "postId": "post_demo_3",
+      "createdAt": "2026-11-16T02:31:14.110Z"
+    },
+    {
+      "userId": "demo_user_arquivo",
+      "postId": "post_demo_4",
+      "createdAt": "2026-11-15T19:31:14.110Z"
+    }
+  ],
+  "comments": [
+    {
+      "id": "cmt_demo_1",
+      "postId": "post_demo_1",
+      "authorId": "demo_user_mateus",
+      "parentId": null,
+      "content": "Essa comparação com a convivência das livrarias independentes resume exatamente o que faltava na web cultural.",
+      "createdAt": "2026-11-16T16:31:14.110Z"
+    },
+    {
+      "id": "cmt_demo_2",
+      "postId": "post_demo_1",
+      "authorId": "demo_user_clara",
+      "parentId": "cmt_demo_1",
+      "content": "Obrigada, Mateus! Quando um filme conversa com um livro na mesma tarde, tudo fica mais vivo.",
+      "createdAt": "2026-11-16T17:31:14.110Z"
+    },
+    {
+      "id": "cmt_demo_3",
+      "postId": "post_demo_2",
+      "authorId": "demo_user_arquivo",
+      "parentId": null,
+      "content": "A imagem do mapa dobrado depois da viagem ficou reverberando por aqui.",
+      "createdAt": "2026-11-16T10:31:14.110Z"
+    }
+  ],
+  "follows": [
+    {
+      "followerId": "demo_user_clara",
+      "followingId": "demo_user_mateus",
+      "createdAt": "2026-11-12T16:31:14.110Z"
+    },
+    {
+      "followerId": "demo_user_clara",
+      "followingId": "demo_user_arquivo",
+      "createdAt": "2026-11-13T02:31:14.110Z"
+    },
+    {
+      "followerId": "demo_user_mateus",
+      "followingId": "demo_user_clara",
+      "createdAt": "2026-11-13T12:31:14.110Z"
+    },
+    {
+      "followerId": "demo_user_arquivo",
+      "followingId": "demo_user_clara",
+      "createdAt": "2026-11-13T22:31:14.110Z"
+    }
+  ],
+  "blocks": [],
+  "reports": [],
+  "culturalItems": [
+    {
+      "id": "cult_1",
+      "userId": "demo_user_clara",
+      "mediaType": "livro",
+      "subType": "obra",
+      "title": "Ao Farol",
+      "creator": "Virginia Woolf",
+      "year": "1927",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "status": "completed",
+      "rating": 5,
+      "review": "Prosa luminosa sobre o tempo e a passagem das estações.",
+      "listName": "Clássicos de Cabeceira",
+      "isFavorite": true,
+      "isDemo": true,
+      "createdAt": "2026-11-12T16:31:14.110Z"
+    },
+    {
+      "id": "cult_2",
+      "userId": "demo_user_clara",
+      "mediaType": "livro",
+      "subType": "obra",
+      "title": "A Paixão Segundo G.H.",
+      "creator": "Clarice Lispector",
+      "year": "1964",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "status": "in_progress",
+      "rating": 4.5,
+      "review": "Leitura lenta, duas páginas por noite.",
+      "listName": "Literatura Brasileira",
+      "isFavorite": true,
+      "isDemo": true,
+      "createdAt": "2026-11-15T04:31:14.110Z"
+    },
+    {
+      "id": "cult_3",
+      "userId": "demo_user_mateus",
+      "mediaType": "filme",
+      "subType": "obra",
+      "title": "Perfect Days",
+      "creator": "Wim Wenders",
+      "year": "2023",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "status": "completed",
+      "rating": 5,
+      "review": "Obra-prima de delicadeza visual e atenção ao cotidiano.",
+      "listName": "Cinema Contemplativo",
+      "isFavorite": true,
+      "isDemo": true,
+      "createdAt": "2026-11-15T09:31:14.110Z"
+    },
+    {
+      "id": "cult_4",
+      "userId": "demo_user_mateus",
+      "mediaType": "serie",
+      "subType": "obra",
+      "title": "Dekalog",
+      "creator": "Krzysztof Kieślowski",
+      "year": "1989",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "status": "planned",
+      "rating": 0,
+      "review": "Na fila para maratona de domingo.",
+      "listName": "Para Assistir no Inverno",
+      "isFavorite": false,
+      "isDemo": true,
+      "createdAt": "2026-11-16T05:31:14.110Z"
+    },
+    {
+      "id": "cult_5",
+      "userId": "demo_user_arquivo",
+      "mediaType": "musica",
+      "subType": "album",
+      "title": "Construção",
+      "creator": "Chico Buarque",
+      "year": "1971",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "status": "completed",
+      "rating": 5,
+      "review": "Arquitetura poética e arranjos impecáveis do início ao fim.",
+      "listName": "Discos Essenciais",
+      "isFavorite": true,
+      "isDemo": true,
+      "createdAt": "2026-11-14T08:31:14.110Z"
+    }
+  ],
+  "shelves": [
+    {
+      "id": "shelf_demo_user_clara_1",
+      "userId": "demo_user_clara",
+      "title": "Poemas",
+      "category": "Poemas",
+      "description": "Versos guardados para releituras silenciosas.",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPublic": true,
+      "order": 0,
+      "items": [
+        {
+          "id": "shitem_1",
+          "title": "Inventário da tarde sobre a mesa de calcário",
+          "subtitle": "Poema autoral (Demonstração)",
+          "kind": "poema",
+          "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+          "refId": "post_demo_2",
+          "addedAt": "2026-11-16T08:31:14.110Z"
+        }
+      ],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_clara_2",
+      "userId": "demo_user_clara",
+      "title": "Músicas",
+      "category": "Músicas",
+      "description": "Álbuns inteiros, discos de vinil e trilhas sonoras.",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPublic": true,
+      "order": 1,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_clara_3",
+      "userId": "demo_user_clara",
+      "title": "Filmes e séries",
+      "category": "Filmes e séries",
+      "description": "Cinema de autor, ensaios visuais e séries marcantes.",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "isPublic": true,
+      "order": 2,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_clara_4",
+      "userId": "demo_user_clara",
+      "title": "Livros",
+      "category": "Livros",
+      "description": "Romances, contos, ensaios e cadernos de cabeceira.",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "isPublic": true,
+      "order": 3,
+      "items": [
+        {
+          "id": "shitem_2",
+          "title": "Ao Farol",
+          "subtitle": "Virginia Woolf · 1927",
+          "kind": "livro",
+          "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+          "addedAt": "2026-11-15T20:31:14.110Z"
+        }
+      ],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_clara_5",
+      "userId": "demo_user_clara",
+      "title": "Fotografias",
+      "category": "Fotografias",
+      "description": "Luz natural, retratos urbanos e registros em 35mm.",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPublic": true,
+      "order": 4,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_clara_6",
+      "userId": "demo_user_clara",
+      "title": "Favoritos",
+      "category": "Favoritos",
+      "description": "Seleção essencial de referências e descobertas.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 5,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_mateus_1",
+      "userId": "demo_user_mateus",
+      "title": "Poemas",
+      "category": "Poemas",
+      "description": "Versos guardados para releituras silenciosas.",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPublic": true,
+      "order": 0,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_mateus_2",
+      "userId": "demo_user_mateus",
+      "title": "Músicas",
+      "category": "Músicas",
+      "description": "Álbuns inteiros, discos de vinil e trilhas sonoras.",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPublic": true,
+      "order": 1,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_mateus_3",
+      "userId": "demo_user_mateus",
+      "title": "Filmes e séries",
+      "category": "Filmes e séries",
+      "description": "Cinema de autor, ensaios visuais e séries marcantes.",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "isPublic": true,
+      "order": 2,
+      "items": [
+        {
+          "id": "shitem_3",
+          "title": "Perfect Days",
+          "subtitle": "Wim Wenders · 2023",
+          "kind": "filme",
+          "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+          "addedAt": "2026-11-16T00:31:14.110Z"
+        }
+      ],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_mateus_4",
+      "userId": "demo_user_mateus",
+      "title": "Livros",
+      "category": "Livros",
+      "description": "Romances, contos, ensaios e cadernos de cabeceira.",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "isPublic": true,
+      "order": 3,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_mateus_5",
+      "userId": "demo_user_mateus",
+      "title": "Fotografias",
+      "category": "Fotografias",
+      "description": "Luz natural, retratos urbanos e registros em 35mm.",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPublic": true,
+      "order": 4,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_mateus_6",
+      "userId": "demo_user_mateus",
+      "title": "Favoritos",
+      "category": "Favoritos",
+      "description": "Seleção essencial de referências e descobertas.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 5,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_arquivo_1",
+      "userId": "demo_user_arquivo",
+      "title": "Poemas",
+      "category": "Poemas",
+      "description": "Versos guardados para releituras silenciosas.",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPublic": true,
+      "order": 0,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_arquivo_2",
+      "userId": "demo_user_arquivo",
+      "title": "Músicas",
+      "category": "Músicas",
+      "description": "Álbuns inteiros, discos de vinil e trilhas sonoras.",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPublic": true,
+      "order": 1,
+      "items": [
+        {
+          "id": "shitem_4",
+          "title": "Construção",
+          "subtitle": "Chico Buarque · 1971",
+          "kind": "musica",
+          "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+          "addedAt": "2026-11-15T14:31:14.110Z"
+        }
+      ],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_arquivo_3",
+      "userId": "demo_user_arquivo",
+      "title": "Filmes e séries",
+      "category": "Filmes e séries",
+      "description": "Cinema de autor, ensaios visuais e séries marcantes.",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "isPublic": true,
+      "order": 2,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_arquivo_4",
+      "userId": "demo_user_arquivo",
+      "title": "Livros",
+      "category": "Livros",
+      "description": "Romances, contos, ensaios e cadernos de cabeceira.",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "isPublic": true,
+      "order": 3,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_arquivo_5",
+      "userId": "demo_user_arquivo",
+      "title": "Fotografias",
+      "category": "Fotografias",
+      "description": "Luz natural, retratos urbanos e registros em 35mm.",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPublic": true,
+      "order": 4,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_demo_user_arquivo_6",
+      "userId": "demo_user_arquivo",
+      "title": "Favoritos",
+      "category": "Favoritos",
+      "description": "Seleção essencial de referências e descobertas.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 5,
+      "items": [],
+      "createdAt": "2026-11-16T20:31:14.333Z"
+    },
+    {
+      "id": "shelf_usr_c227d61fc8f6_1",
+      "userId": "usr_c227d61fc8f6",
+      "title": "Poemas",
+      "category": "Poemas",
+      "description": "Versos guardados para releituras silenciosas.",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPublic": true,
+      "order": 1,
+      "items": [],
+      "createdAt": "2026-11-16T20:53:59.902Z"
+    },
+    {
+      "id": "shelf_usr_c227d61fc8f6_2",
+      "userId": "usr_c227d61fc8f6",
+      "title": "Músicas",
+      "category": "Músicas",
+      "description": "Álbuns inteiros, discos de vinil e trilhas sonoras.",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPublic": true,
+      "order": 0,
+      "items": [],
+      "createdAt": "2026-11-16T20:53:59.902Z"
+    },
+    {
+      "id": "shelf_usr_c227d61fc8f6_3",
+      "userId": "usr_c227d61fc8f6",
+      "title": "Filmes e séries",
+      "category": "Filmes e séries",
+      "description": "Cinema de autor, ensaios visuais e séries marcantes.",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "isPublic": true,
+      "order": 2,
+      "items": [],
+      "createdAt": "2026-11-16T20:53:59.902Z"
+    },
+    {
+      "id": "shelf_usr_c227d61fc8f6_4",
+      "userId": "usr_c227d61fc8f6",
+      "title": "Livros",
+      "category": "Livros",
+      "description": "Romances, contos, ensaios e cadernos de cabeceira.",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "isPublic": true,
+      "order": 3,
+      "items": [],
+      "createdAt": "2026-11-16T20:53:59.902Z"
+    },
+    {
+      "id": "shelf_usr_c227d61fc8f6_5",
+      "userId": "usr_c227d61fc8f6",
+      "title": "Fotografias",
+      "category": "Fotografias",
+      "description": "Luz natural, retratos urbanos e registros em 35mm.",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPublic": true,
+      "order": 4,
+      "items": [],
+      "createdAt": "2026-11-16T20:53:59.902Z"
+    },
+    {
+      "id": "shelf_usr_c227d61fc8f6_6",
+      "userId": "usr_c227d61fc8f6",
+      "title": "Favoritos",
+      "category": "Favoritos",
+      "description": "Seleção essencial de referências e descobertas.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 5,
+      "items": [],
+      "createdAt": "2026-11-16T20:53:59.902Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_1",
+      "userId": "usr_82b55d42ad44",
+      "title": "Poemas",
+      "category": "Poemas",
+      "description": "Versos guardados para releituras silenciosas.",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPublic": true,
+      "order": 0,
+      "items": [
+        {
+          "id": "shitem_92291f786909",
+          "title": "Inventário da tarde sobre a mesa de calcário",
+          "subtitle": "Autora",
+          "kind": "poema",
+          "coverUrl": "",
+          "refId": "post_demo_2",
+          "note": "Verso de teste",
+          "addedAt": "2026-11-17T10:52:13.163Z"
+        }
+      ],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_2",
+      "userId": "usr_82b55d42ad44",
+      "title": "Artigos",
+      "category": "Artigos",
+      "description": "Ensaios, crônicas e artigos de referência.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 1,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_3",
+      "userId": "usr_82b55d42ad44",
+      "title": "Músicas",
+      "category": "Músicas",
+      "description": "Álbuns inteiros, discos de vinil e trilhas sonoras.",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPublic": true,
+      "order": 2,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_4",
+      "userId": "usr_82b55d42ad44",
+      "title": "Filmes e séries",
+      "category": "Filmes e séries",
+      "description": "Cinema de autor, ensaios visuais e séries marcantes.",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "isPublic": true,
+      "order": 3,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_5",
+      "userId": "usr_82b55d42ad44",
+      "title": "Livros",
+      "category": "Livros",
+      "description": "Romances, contos, ensaios e cadernos de cabeceira.",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "isPublic": true,
+      "order": 4,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_6",
+      "userId": "usr_82b55d42ad44",
+      "title": "Fotografias",
+      "category": "Fotografias",
+      "description": "Luz natural, retratos urbanos e registros em 35mm.",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPublic": true,
+      "order": 5,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_82b55d42ad44_7",
+      "userId": "usr_82b55d42ad44",
+      "title": "Favoritos",
+      "category": "Favoritos",
+      "description": "Seleção essencial de referências e descobertas.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 6,
+      "items": [
+        {
+          "id": "shitem_ce9aa40254fd",
+          "title": "A arquitetura da leitura lenta em tempos de rolagem infinita",
+          "subtitle": "Ensaio editorial",
+          "kind": "artigo",
+          "coverUrl": "",
+          "refId": "post_demo_1",
+          "note": "Leitura essencial",
+          "addedAt": "2026-11-17T10:52:13.183Z"
+        }
+      ],
+      "createdAt": "2026-11-17T10:52:13.132Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_1",
+      "userId": "usr_261f6299ead5",
+      "title": "Poemas",
+      "category": "Poemas",
+      "description": "Versos guardados para releituras silenciosas.",
+      "coverUrl": "/src/assets/images/poetry_botanical_cover_1794860652045.jpg",
+      "isPublic": true,
+      "order": 0,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_2",
+      "userId": "usr_261f6299ead5",
+      "title": "Artigos",
+      "category": "Artigos",
+      "description": "Ensaios, crônicas e artigos de referência.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 1,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_3",
+      "userId": "usr_261f6299ead5",
+      "title": "Músicas",
+      "category": "Músicas",
+      "description": "Álbuns inteiros, discos de vinil e trilhas sonoras.",
+      "coverUrl": "/src/assets/images/music_vinyl_cover_1794860652366.jpg",
+      "isPublic": true,
+      "order": 2,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_4",
+      "userId": "usr_261f6299ead5",
+      "title": "Filmes e séries",
+      "category": "Filmes e séries",
+      "description": "Cinema de autor, ensaios visuais e séries marcantes.",
+      "coverUrl": "/src/assets/images/editorial_cinema_cover_1794860652401.jpg",
+      "isPublic": true,
+      "order": 3,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_5",
+      "userId": "usr_261f6299ead5",
+      "title": "Livros",
+      "category": "Livros",
+      "description": "Romances, contos, ensaios e cadernos de cabeceira.",
+      "coverUrl": "/src/assets/images/book_archive_cover_1794860653200.jpg",
+      "isPublic": true,
+      "order": 4,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_6",
+      "userId": "usr_261f6299ead5",
+      "title": "Fotografias",
+      "category": "Fotografias",
+      "description": "Luz natural, retratos urbanos e registros em 35mm.",
+      "coverUrl": "/src/assets/images/street_photography_demo_1794860653458.jpg",
+      "isPublic": true,
+      "order": 5,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    },
+    {
+      "id": "shelf_usr_261f6299ead5_7",
+      "userId": "usr_261f6299ead5",
+      "title": "Favoritos",
+      "category": "Favoritos",
+      "description": "Seleção essencial de referências e descobertas.",
+      "coverUrl": "",
+      "isPublic": true,
+      "order": 6,
+      "items": [],
+      "createdAt": "2026-11-17T10:52:58.881Z"
+    }
+  ],
+  "favoriteCollections": [
+    {
+      "id": "favcol_demo_1",
+      "userId": "demo_user_clara",
+      "name": "Referências para o próximo ensaio",
+      "description": "Coleção privada de leitura e cinema.",
+      "isPrivate": true,
+      "createdAt": "2026-11-14T18:31:14.110Z"
+    }
+  ],
+  "savedItems": [
+    {
+      "id": "saved_demo_1",
+      "userId": "demo_user_clara",
+      "postId": "post_demo_4",
+      "category": "Filmes",
+      "collectionId": "favcol_demo_1",
+      "savedAt": "2026-11-16T08:31:14.110Z"
+    },
+    {
+      "id": "saved_demo_2",
+      "userId": "demo_user_clara",
+      "postId": "post_demo_3",
+      "category": "Fotografias",
+      "collectionId": null,
+      "savedAt": "2026-11-16T12:31:14.110Z"
+    },
+    {
+      "id": "fav_405a15515cdc",
+      "userId": "usr_8f9e170a27aa",
+      "postId": "post_demo_2",
+      "category": "Poemas",
+      "collectionId": null,
+      "savedAt": "2026-11-17T10:52:01.532Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_2a06afc368ea",
+      "userId": "demo_user_arquivo",
+      "actorId": "demo_user_clara",
+      "type": "new_post",
+      "postId": "post_35e8c2e4f7a9",
+      "message": "publicou \"Poema Teste Chuva\"",
+      "read": false,
+      "createdAt": "2026-11-18T20:21:54.122Z"
+    },
+    {
+      "id": "notif_f59d58ec4c1d",
+      "userId": "demo_user_mateus",
+      "actorId": "demo_user_clara",
+      "type": "new_post",
+      "postId": "post_35e8c2e4f7a9",
+      "message": "publicou \"Poema Teste Chuva\"",
+      "read": false,
+      "createdAt": "2026-11-18T20:21:54.122Z"
+    },
+    {
+      "id": "notif_41c585723ae0",
+      "userId": "demo_user_clara",
+      "actorId": "usr_72b67930b1a0",
+      "type": "comment",
+      "postId": "post_33dc7a7ff3ac",
+      "message": "comentou em \"E2E Luz da Manhã Editada\"",
+      "read": false,
+      "createdAt": "2026-11-17T11:04:38.007Z"
+    },
+    {
+      "id": "notif_0e3e1e2a13d6",
+      "userId": "demo_user_clara",
+      "actorId": "usr_72b67930b1a0",
+      "type": "like",
+      "postId": "post_33dc7a7ff3ac",
+      "message": "curtiu \"E2E Luz da Manhã Editada\"",
+      "read": false,
+      "createdAt": "2026-11-17T11:04:38.001Z"
+    },
+    {
+      "id": "notif_78432d344e4f",
+      "userId": "demo_user_arquivo",
+      "actorId": "demo_user_clara",
+      "type": "new_post",
+      "postId": "post_33dc7a7ff3ac",
+      "message": "publicou \"E2E Luz da Manhã\"",
+      "read": false,
+      "createdAt": "2026-11-17T11:04:37.993Z"
+    },
+    {
+      "id": "notif_1a34a0dd09cc",
+      "userId": "demo_user_mateus",
+      "actorId": "demo_user_clara",
+      "type": "new_post",
+      "postId": "post_33dc7a7ff3ac",
+      "message": "publicou \"E2E Luz da Manhã\"",
+      "read": false,
+      "createdAt": "2026-11-17T11:04:37.993Z"
+    },
+    {
+      "id": "notif_6d3df2d51b09",
+      "userId": "demo_user_arquivo",
+      "actorId": "demo_user_clara",
+      "type": "new_post",
+      "postId": "post_efd7e16bc545",
+      "message": "publicou \"Teste Spotify Post\"",
+      "read": false,
+      "createdAt": "2026-11-16T21:26:55.406Z"
+    },
+    {
+      "id": "notif_4bcc2703f3f7",
+      "userId": "demo_user_mateus",
+      "actorId": "demo_user_clara",
+      "type": "new_post",
+      "postId": "post_efd7e16bc545",
+      "message": "publicou \"Teste Spotify Post\"",
+      "read": false,
+      "createdAt": "2026-11-16T21:26:55.406Z"
+    },
+    {
+      "id": "notif_demo_1",
+      "userId": "demo_user_clara",
+      "actorId": "demo_user_mateus",
+      "type": "comment",
+      "postId": "post_demo_1",
+      "message": "comentou no seu artigo \"A arquitetura da leitura lenta\"",
+      "read": false,
+      "createdAt": "2026-11-16T16:31:14.110Z"
+    },
+    {
+      "id": "notif_demo_2",
+      "userId": "demo_user_clara",
+      "actorId": "demo_user_arquivo",
+      "type": "like",
+      "postId": "post_demo_1",
+      "message": "curtiu o seu artigo",
+      "read": false,
+      "createdAt": "2026-11-16T16:31:14.110Z"
+    },
+    {
+      "id": "notif_demo_3",
+      "userId": "demo_user_clara",
+      "actorId": "demo_user_arquivo",
+      "type": "follow",
+      "message": "começou a acompanhar suas publicações",
+      "read": true,
+      "createdAt": "2026-11-13T22:31:14.110Z"
+    }
+  ],
+  "resetTokens": [],
+  "mediaReviews": [],
+  "mediaComments": [],
+  "mediaShelfEntries": [
+    {
+      "id": "mshelf_5d3d8c5ecb45",
+      "userId": "usr_8f9e170a27aa",
+      "workId": "imdb_tt22022452",
+      "mediaKind": "filme",
+      "status": "quero_assistir",
+      "isFavorite": false,
+      "workSnapshot": {
+        "id": "imdb_tt22022452",
+        "mediaKind": "filme",
+        "title": "Divertida Mente 2",
+        "creator": "Kelsey Mann",
+        "year": "2024",
+        "coverUrl": "https://m.media-amazon.com/images/M/MV5BYWY3MDE2Y2UtOTE3Zi00MGUzLTg2MTItZjE1ZWVkMGVlODRmXkEyXkFqcGc@._V1_SX600.jpg",
+        "genres": [
+          "Comédia dramática",
+          "Coming-of-age film"
+        ],
+        "ageRating": "10"
+      },
+      "updatedAt": "2026-11-17T10:55:13.975Z"
+    },
+    {
+      "id": "mshelf_5f540825726c",
+      "userId": "usr_82b55d42ad44",
+      "workId": "imdb_tt4154796",
+      "mediaKind": "filme",
+      "status": "quero_assistir",
+      "isFavorite": false,
+      "workSnapshot": {
+        "id": "imdb_tt4154796",
+        "mediaKind": "filme",
+        "title": "Avengers Endgame: Encore",
+        "creator": "Anthony Russo, Joe Russo, Irmãos Russo",
+        "year": "2019",
+        "coverUrl": "https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_SX600.jpg",
+        "genres": [
+          "Filme de ação",
+          "Filme de aventura",
+          "Filme de super-herói"
+        ],
+        "ageRating": "12"
+      },
+      "updatedAt": "2026-11-17T10:52:21.238Z"
+    },
+    {
+      "id": "mshelf_699eef1c8c02",
+      "userId": "usr_8f9e170a27aa",
+      "workId": "ib_548161153",
+      "mediaKind": "livro",
+      "status": "quero_ler",
+      "isFavorite": false,
+      "workSnapshot": {
+        "id": "ib_548161153",
+        "mediaKind": "livro",
+        "title": "Dom Casmurro",
+        "creator": "Machado de Assis",
+        "year": "2012",
+        "coverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Publication/v4/b8/a3/4f/b8a34fb3-cbd1-0b1f-6f08-ee18b755c604/Dom_Casmurro.jpg/500x750bb.jpg",
+        "genres": [
+          "Literatura Brasileira",
+          "Ficção Literária"
+        ]
+      },
+      "updatedAt": "2026-11-17T10:48:06.079Z"
+    },
+    {
+      "id": "mshelf_9b95f97cfc89",
+      "userId": "usr_8f9e170a27aa",
+      "workId": "ib_1334959798",
+      "mediaKind": "livro",
+      "status": "quero_ler",
+      "isFavorite": false,
+      "workSnapshot": {
+        "id": "ib_1334959798",
+        "mediaKind": "livro",
+        "title": "É assim que acaba",
+        "creator": "Colleen Hoover",
+        "year": "2018",
+        "coverUrl": "https://is1-ssl.mzstatic.com/image/thumb/Publication118/v4/24/34/2e/24342ee1-5c16-0699-c90d-24fd04a31a95/1023431982.jpg/500x750bb.jpg",
+        "genres": [
+          "Romance",
+          "Ficção Literária"
+        ]
+      },
+      "updatedAt": "2026-11-17T10:48:00.308Z"
+    }
+  ],
+  "diaryEntries": [],
+  "diaryLikes": [],
+  "podcastStates": [
+    {
+      "userId": "demo_user_clara",
+      "favoriteGenres": [
+        "Filosofia",
+        "Literatura e poesia"
+      ],
+      "favoriteEpisodeIds": [],
+      "favoriteEpisodes": [],
+      "progressMap": {
+        "pod_7c3bd5570ede3f": {
+          "episodeId": "pod_7c3bd5570ede3f",
+          "positionSec": 95,
+          "durationSec": 5526,
+          "updatedAt": "2026-11-17T11:04:40.287Z",
+          "episodeSnapshot": {
+            "id": "pod_7c3bd5570ede3f",
+            "showTitle": "Mundo Freak Confidencial",
+            "title": "APAGÃO GERAL! A Guerra pelo Stargate e a Espionagem Chinesa | MFC 630",
+            "description": "<p>Uma guerra por um portal alienígena? Um OVNI misterioso no litoral brasileiro? E um apagão mundial previsto para 17 de novembro?No Mundo Freak Confidencial de hoje, vamos mergulhar em algumas das histórias mais bizarras e intrigantes que estão circulando pela internet!Uma teoria conspiratória afirma que o conflito e",
+            "genre": "Mistérios e histórias",
+            "coverUrl": "https://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/9727930/9727930-1694011149989-903448c0338f5.jpg",
+            "audioUrl": "https://traffic.megaphone.fm/APO2858557555.mp3",
+            "durationSec": 5526,
+            "durationLabel": "1h 32m",
+            "publishedAt": "2026-11-11T02:18:06.000Z",
+            "sourceName": "Mundo Freak",
+            "sourceUrl": "https://podcasts.apple.com/br/podcast/mundo-freak-confidencial/id679797018?uo=4"
+          }
+        }
+      }
+    }
+  ],
+  "sessions": []
+}

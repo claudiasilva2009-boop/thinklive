@@ -1,0 +1,640 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-tl-creme: var(--tl-creme);
+  --color-tl-papel: var(--tl-papel);
+  --color-tl-bege: var(--tl-bege);
+  --color-tl-areia: var(--tl-areia);
+  --color-tl-laranja: var(--tl-laranja);
+  --color-tl-terracota: var(--tl-terracota);
+  --color-tl-marrom: var(--tl-marrom);
+  --color-tl-marrom-suave: var(--tl-marrom-suave);
+}
+
+@layer base {
+  :root,
+  [data-season="outono"] {
+    --tl-creme: #F3EBDD;
+    --tl-papel: #FAF5EC;
+    --tl-bege: #E7D7C2;
+    --tl-areia: #D9BFA0;
+    --tl-laranja: #C47743;
+    --tl-terracota: #98512F;
+    --tl-marrom: #563A2C;
+    --tl-marrom-suave: #765A49;
+    --tl-border: rgba(86, 58, 44, 0.14);
+
+    --tl-canvas-grad-1: rgba(243, 235, 221, 0.72);
+    --tl-canvas-grad-2: rgba(217, 191, 160, 0.45);
+    --tl-canvas-grad-3: rgba(243, 235, 221, 0.48);
+
+    --tl-shadow-rgb: 86, 58, 44;
+    --tl-glow-rgb: 222, 172, 98;
+    --tl-glow-mid-rgb: 196, 119, 67;
+    --tl-glow-edge-rgb: 152, 81, 47;
+    --tl-glow-highlight-rgb: 243, 235, 221;
+    --tl-glow-text: rgba(218, 166, 92, 0.34);
+  }
+
+  [data-season="inverno"] {
+    --tl-creme: #F4F8FC;
+    --tl-papel: #FAFCFF;
+    --tl-bege: #DFE8F1;
+    --tl-areia: #C2D1E0;
+    --tl-laranja: #3C6B92;
+    --tl-terracota: #264B6B;
+    --tl-marrom: #1D3042;
+    --tl-marrom-suave: #4A6075;
+    --tl-border: rgba(29, 48, 66, 0.14);
+
+    --tl-canvas-grad-1: rgba(244, 248, 252, 0.78);
+    --tl-canvas-grad-2: rgba(194, 209, 224, 0.52);
+    --tl-canvas-grad-3: rgba(226, 238, 249, 0.56);
+
+    --tl-shadow-rgb: 29, 48, 66;
+    --tl-glow-rgb: 144, 188, 226;
+    --tl-glow-mid-rgb: 60, 107, 146;
+    --tl-glow-edge-rgb: 38, 75, 107;
+    --tl-glow-highlight-rgb: 244, 248, 252;
+    --tl-glow-text: rgba(124, 174, 218, 0.4);
+  }
+
+  [data-season="primavera"] {
+    --tl-creme: #FBF5F6;
+    --tl-papel: #FFF9FA;
+    --tl-bege: #F1E3E7;
+    --tl-areia: #DFC5CD;
+    --tl-laranja: #B0536E;
+    --tl-terracota: #86384F;
+    --tl-marrom: #422631;
+    --tl-marrom-suave: #6B4B57;
+    --tl-border: rgba(66, 38, 49, 0.13);
+
+    --tl-canvas-grad-1: rgba(251, 245, 246, 0.78);
+    --tl-canvas-grad-2: rgba(223, 197, 205, 0.48);
+    --tl-canvas-grad-3: rgba(232, 242, 229, 0.44);
+
+    --tl-shadow-rgb: 66, 38, 49;
+    --tl-glow-rgb: 226, 154, 176;
+    --tl-glow-mid-rgb: 176, 83, 110;
+    --tl-glow-edge-rgb: 134, 56, 79;
+    --tl-glow-highlight-rgb: 251, 245, 246;
+    --tl-glow-text: rgba(222, 144, 168, 0.36);
+  }
+
+  [data-season="verao"] {
+    --tl-creme: #FEF9EC;
+    --tl-papel: #FFFDF6;
+    --tl-bege: #F3E3C2;
+    --tl-areia: #E2C58E;
+    --tl-laranja: #B86A14;
+    --tl-terracota: #874A0A;
+    --tl-marrom: #463014;
+    --tl-marrom-suave: #6D5330;
+    --tl-border: rgba(70, 48, 20, 0.14);
+
+    --tl-canvas-grad-1: rgba(254, 249, 236, 0.8);
+    --tl-canvas-grad-2: rgba(236, 198, 120, 0.48);
+    --tl-canvas-grad-3: rgba(254, 243, 210, 0.52);
+
+    --tl-shadow-rgb: 70, 48, 20;
+    --tl-glow-rgb: 242, 188, 72;
+    --tl-glow-mid-rgb: 184, 106, 20;
+    --tl-glow-edge-rgb: 135, 74, 10;
+    --tl-glow-highlight-rgb: 254, 249, 236;
+    --tl-glow-text: rgba(240, 182, 64, 0.42);
+  }
+
+  html {
+    font-family: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--tl-bege);
+    color: var(--tl-marrom);
+    scroll-behavior: smooth;
+    transition: background-color 360ms ease, color 360ms ease;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  }
+
+  .font-literary {
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  .font-display-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .font-sans-ui {
+    font-family: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
+  }
+}
+
+/* Subtle seasonal literary paper texture */
+.autumn-paper-canvas {
+  background-color: var(--tl-bege);
+  background-image:
+    radial-gradient(at 14% 8%, var(--tl-canvas-grad-1) 0px, transparent 52%),
+    radial-gradient(at 88% 16%, var(--tl-canvas-grad-2) 0px, transparent 48%),
+    radial-gradient(at 50% 85%, var(--tl-canvas-grad-3) 0px, transparent 58%);
+  transition: background-color 420ms ease, color 320ms ease;
+}
+
+.editorial-shadow {
+  box-shadow:
+    0 10px 30px -12px rgba(var(--tl-shadow-rgb), 0.14),
+    0 2px 8px -2px rgba(var(--tl-shadow-rgb), 0.06);
+}
+
+.editorial-card-lift {
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 260ms ease;
+}
+
+.editorial-card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 32px -14px rgba(var(--tl-shadow-rgb), 0.18),
+    0 0 22px -4px rgba(var(--tl-glow-rgb), 0.24);
+}
+
+/* ============================================================================
+   SEASONAL INTERACTIVE HOVER GLOW
+   Satin paper cursor reflection adapting organically to each season's palette
+   ============================================================================ */
+
+@layer components {
+.autumn-glow-card {
+  position: relative;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 280ms ease;
+}
+
+.autumn-glow-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    380px circle at var(--glow-x, 50%) var(--glow-y, 45%),
+    rgba(var(--tl-glow-rgb), 0.18),
+    rgba(var(--tl-glow-mid-rgb), 0.08) 44%,
+    transparent 74%
+  );
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.autumn-glow-card:hover,
+.autumn-glow-card.is-touch-glow {
+  border-color: rgba(var(--tl-glow-edge-rgb), 0.38);
+  box-shadow:
+    0 14px 32px -14px rgba(var(--tl-shadow-rgb), 0.16),
+    0 0 24px -3px rgba(var(--tl-glow-rgb), 0.24),
+    inset 0 1px 0 rgba(var(--tl-glow-highlight-rgb), 0.48);
+}
+
+.autumn-glow-card:hover::before,
+.autumn-glow-card.is-touch-glow::before {
+  opacity: 1;
+}
+
+.autumn-glow-btn {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms ease,
+    border-color 220ms ease;
+}
+
+.autumn-glow-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(var(--tl-glow-highlight-rgb), 0.24) 48%,
+    rgba(var(--tl-glow-rgb), 0.16) 58%,
+    transparent 80%
+  );
+  transform: translateX(-115%);
+  opacity: 0;
+  transition:
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 280ms ease;
+}
+
+.autumn-glow-btn:hover,
+.autumn-glow-btn:focus-visible,
+.autumn-glow-btn.is-touch-glow {
+  border-color: rgba(var(--tl-glow-edge-rgb), 0.45);
+  box-shadow:
+    0 6px 18px -5px rgba(var(--tl-glow-edge-rgb), 0.3),
+    0 0 16px -2px rgba(var(--tl-glow-rgb), 0.32),
+    inset 0 1px 2px rgba(var(--tl-glow-highlight-rgb), 0.36),
+    inset 0 0 12px rgba(var(--tl-glow-rgb), 0.22);
+}
+
+.autumn-glow-btn:hover::after,
+.autumn-glow-btn.is-touch-glow::after {
+  transform: translateX(115%);
+  opacity: 1;
+}
+
+.autumn-glow-surface {
+  position: relative;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 240ms ease,
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+.autumn-glow-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    150px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    rgba(var(--tl-glow-rgb), 0.2),
+    rgba(var(--tl-glow-mid-rgb), 0.08) 54%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.autumn-glow-surface:hover,
+.autumn-glow-surface:focus-visible,
+.autumn-glow-surface.is-touch-glow {
+  border-color: rgba(var(--tl-glow-edge-rgb), 0.34);
+  box-shadow:
+    0 4px 14px -4px rgba(var(--tl-glow-edge-rgb), 0.16),
+    0 0 14px -2px rgba(var(--tl-glow-rgb), 0.25),
+    inset 0 1px 1px rgba(var(--tl-glow-highlight-rgb), 0.42);
+}
+
+.autumn-glow-surface:hover::before,
+.autumn-glow-surface.is-touch-glow::before {
+  opacity: 1;
+}
+
+.autumn-glow-image {
+  position: relative;
+  transition:
+    box-shadow 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 280ms ease;
+}
+
+.autumn-glow-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    280px circle at var(--glow-x, 50%) var(--glow-y, 35%),
+    rgba(var(--tl-glow-rgb), 0.22),
+    rgba(var(--tl-glow-mid-rgb), 0.08) 48%,
+    rgba(var(--tl-shadow-rgb), 0.08) 100%
+  );
+  opacity: 0;
+  transition: opacity 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.autumn-glow-image img {
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.autumn-glow-image:hover,
+.group:hover .autumn-glow-image,
+.autumn-glow-image.is-touch-glow {
+  box-shadow:
+    0 12px 28px -10px rgba(var(--tl-shadow-rgb), 0.22),
+    0 0 20px -4px rgba(var(--tl-glow-rgb), 0.26),
+    inset 0 0 0 1px rgba(var(--tl-glow-edge-rgb), 0.26);
+}
+
+.autumn-glow-image:hover::after,
+.group:hover .autumn-glow-image::after,
+.autumn-glow-image.is-touch-glow::after {
+  opacity: 1;
+}
+
+.autumn-glow-image:hover img,
+.group:hover .autumn-glow-image img,
+.autumn-glow-image.is-touch-glow img {
+  filter: brightness(1.03) contrast(1.03) saturate(1.05);
+}
+
+.autumn-glow-link {
+  transition:
+    color 220ms ease,
+    text-shadow 260ms ease,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.autumn-glow-link:hover,
+.autumn-glow-link:focus-visible,
+.autumn-glow-link.is-touch-glow {
+  color: var(--tl-terracota);
+  text-shadow: 0 0 14px var(--tl-glow-text);
+}
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.editorial-dropcap::first-letter {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 3.3rem;
+  line-height: 0.85;
+  float: left;
+  padding-right: 0.6rem;
+  padding-top: 0.22rem;
+  font-weight: 600;
+  color: var(--tl-terracota);
+}
+
+/* ============================================================================
+   SEASONAL ATMOSPHERE ANIMATIONS (4 DISTINCT MOTIONS + INTERACTIVE HOVER)
+   ============================================================================ */
+
+/* 1. OUTONO: Falling leaves with natural tumble & breeze flutter on hover */
+@keyframes autumn-leaf-fall {
+  0% {
+    transform: translate3d(0, -10%, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--p-opacity, 0.36);
+  }
+  35% {
+    transform: translate3d(var(--p-sway-a, 24px), 28%, 0) rotate(var(--p-rot-a, 95deg));
+  }
+  70% {
+    transform: translate3d(var(--p-sway-b, -20px), 66%, 0) rotate(var(--p-rot-b, 220deg));
+  }
+  90% {
+    opacity: var(--p-opacity, 0.36);
+  }
+  100% {
+    transform: translate3d(var(--p-sway-end, 16px), 108%, 0) rotate(var(--p-rot-end, 340deg));
+    opacity: 0;
+  }
+}
+
+@keyframes leaf-breeze-flutter {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-16deg) scale(1.08); }
+  55% { transform: rotate(14deg) scale(1.04); }
+  80% { transform: rotate(-8deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.season-sprite-outono {
+  animation-name: autumn-leaf-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* 2. INVERNO: Slow crystalline snowfall with subtle oscillation & icy whirl on hover */
+@keyframes winter-snow-fall {
+  0% {
+    transform: translate3d(0, -8%, 0) rotate(0deg) scale(0.92);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--p-opacity, 0.55);
+  }
+  40% {
+    transform: translate3d(var(--p-sway-a, 14px), 34%, 0) rotate(var(--p-rot-a, 60deg)) scale(1);
+  }
+  75% {
+    transform: translate3d(var(--p-sway-b, -12px), 72%, 0) rotate(var(--p-rot-b, 140deg)) scale(0.96);
+  }
+  90% {
+    opacity: var(--p-opacity, 0.55);
+  }
+  100% {
+    transform: translate3d(var(--p-sway-end, 8px), 106%, 0) rotate(var(--p-rot-end, 210deg)) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes snow-whirl-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.16); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.season-sprite-inverno {
+  animation-name: winter-snow-fall;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* 3. PRIMAVERA: Sweeping diagonal petal breeze with buoyant floral pirouette on hover */
+@keyframes spring-petal-drift {
+  0% {
+    transform: translate3d(-18px, -8%, 0) rotate(-15deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--p-opacity, 0.44);
+  }
+  35% {
+    transform: translate3d(calc(var(--p-sway-a, 34px) + 18px), 26%, 0) rotate(var(--p-rot-a, 110deg));
+  }
+  68% {
+    transform: translate3d(calc(var(--p-sway-b, 8px) + 42px), 64%, 0) rotate(var(--p-rot-b, 230deg));
+  }
+  90% {
+    opacity: var(--p-opacity, 0.44);
+  }
+  100% {
+    transform: translate3d(calc(var(--p-sway-end, 64px) + 46px), 106%, 0) rotate(var(--p-rot-end, 360deg));
+    opacity: 0;
+  }
+}
+
+@keyframes petal-floral-twirl {
+  0% { transform: rotate(0deg) scale(1); }
+  35% { transform: rotate(-140deg) scale(1.14); }
+  70% { transform: rotate(-280deg) scale(1.08); }
+  100% { transform: rotate(-360deg) scale(1); }
+}
+
+.season-sprite-primavera {
+  animation-name: spring-petal-drift;
+  animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* 4. VERÃO: Warm sun motes & fireflies rising gently from below with organic glow pulse */
+@keyframes summer-firefly-rise {
+  0% {
+    transform: translate3d(0, 104%, 0) scale(0.75);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--p-opacity, 0.56);
+  }
+  42% {
+    transform: translate3d(var(--p-sway-a, 22px), 66%, 0) scale(1.08);
+    opacity: calc(var(--p-opacity, 0.56) * 1.15);
+  }
+  70% {
+    transform: translate3d(var(--p-sway-b, -20px), 30%, 0) scale(0.88);
+    opacity: calc(var(--p-opacity, 0.56) * 0.72);
+  }
+  88% {
+    opacity: var(--p-opacity, 0.56);
+  }
+  100% {
+    transform: translate3d(var(--p-sway-end, 14px), -8%, 0) scale(1.04);
+    opacity: 0;
+  }
+}
+
+@keyframes summer-firefly-pulse {
+  0%, 100% { transform: scale(0.92); opacity: 0.78; }
+  50% { transform: scale(1.28); opacity: 1; }
+}
+
+@keyframes summer-sunbeam-sway {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.24; }
+  50% { transform: translate3d(18px, 10px, 0) scale(1.06); opacity: 0.36; }
+}
+
+.season-sprite-verao {
+  animation-name: summer-firefly-rise;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.season-summer-orb {
+  animation: summer-firefly-pulse 3.2s ease-in-out infinite;
+}
+
+.season-sunbeam-wash {
+  animation: summer-sunbeam-sway 9s ease-in-out infinite;
+}
+
+/* Shared interactive wrapper + per-season hover response */
+.season-particle-interactive {
+  transition:
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 420ms ease,
+    opacity 360ms ease;
+  will-change: transform, filter;
+}
+
+.season-particle-interactive.season-outono.is-hovered {
+  transform: translate3d(var(--p-push-x, 14px), var(--p-push-y, -16px), 0)
+    rotate(var(--p-push-rot, 48deg))
+    scale(1.34);
+  filter: drop-shadow(0 0 8px rgba(218, 166, 92, 0.65)) brightness(1.12);
+}
+
+.season-particle-interactive.season-outono.is-hovered svg {
+  animation: leaf-breeze-flutter 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.season-particle-interactive.season-inverno.is-hovered {
+  transform: translate3d(var(--p-push-x, 16px), var(--p-push-y, -12px), 0)
+    rotate(var(--p-push-rot, 90deg))
+    scale(1.38);
+  filter: drop-shadow(0 0 10px rgba(132, 188, 236, 0.85)) brightness(1.16);
+}
+
+.season-particle-interactive.season-inverno.is-hovered svg {
+  animation: snow-whirl-spin 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.season-particle-interactive.season-primavera.is-hovered {
+  transform: translate3d(var(--p-push-x, 18px), var(--p-push-y, -22px), 0)
+    rotate(var(--p-push-rot, 65deg))
+    scale(1.38);
+  filter: drop-shadow(0 0 9px rgba(226, 142, 168, 0.72)) brightness(1.12);
+}
+
+.season-particle-interactive.season-primavera.is-hovered svg {
+  animation: petal-floral-twirl 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.season-particle-interactive.season-verao.is-hovered {
+  transform: translate3d(var(--p-push-x, 20px), var(--p-push-y, -24px), 0)
+    scale(1.58);
+  filter: drop-shadow(0 0 14px rgba(245, 192, 72, 0.92)) brightness(1.22);
+}
+
+@keyframes page-soft-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-soft-enter 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes tap-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.26); }
+  100% { transform: scale(1); }
+}
+
+.animate-tap-pop {
+  animation: tap-pop 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .season-sprite-outono,
+  .season-sprite-inverno,
+  .season-sprite-primavera,
+  .season-sprite-verao,
+  .season-sunbeam-wash {
+    animation: none !important;
+    display: none !important;
+  }
+  .autumn-glow-btn::after {
+    display: none !important;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
