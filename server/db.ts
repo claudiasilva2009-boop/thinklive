@@ -1189,3 +1189,57 @@ export function getOrCreatePodcastState(userId: string): UserPodcastState {
   }
   return existing;
 }
+
+let initializationPromise: Promise<void> | null = null;
+
+export function initializeDb(): Promise<void> {
+  if (initializationPromise) return initializationPromise;
+
+  initializationPromise = (async () => {
+    const { data, error } = await supabase
+      .from('thinklive_store')
+      .select('payload')
+      .eq('id', 'main')
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Erro ao consultar Supabase: ${error.message}`);
+    }
+
+    if (data) {
+      const remoteDb = data.payload as DatabaseSchema;
+
+      if (
+        !remoteDb ||
+        !Array.isArray(remoteDb.users) ||
+        !Array.isArray(remoteDb.posts)
+      ) {
+        throw new Error('O banco remoto contém dados inválidos.');
+      }
+
+      dbCache = remoteDb;
+      return;
+    }
+
+    // Primeira migração: aproveita o banco JSON existente.
+    const localDb = getDb();
+
+    const { error: insertError } = await supabase
+      .from('thinklive_store')
+      .insert({
+        id: 'main',
+        payload: localDb,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (insertError) {
+      throw new Error(`Erro ao migrar banco: ${insertError.message}`);
+    }
+  })().catch((error) => {
+    initializationPromise = null;
+    throw error;
+  });
+
+  return initializationPromise;
+  }
+
