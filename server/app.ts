@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import crypto from 'crypto';
 import express, { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
@@ -10,6 +9,8 @@ import {
   enrichDiaryEntry,
   enrichPost,
   ensureDataDirs,
+  ensureDbReady,
+  flushPendingDbSave,
   getDb,
   getNotificationsEnriched,
   getOrCreatePodcastState,
@@ -262,6 +263,25 @@ export function createApiApp() {
       return;
     }
     jsonParser(req, res, next);
+  });
+  app.use('/api', async (req, res, next) => {
+    try {
+      await ensureDbReady();
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+        const origJson = res.json.bind(res);
+        res.json = ((body?: unknown) => {
+          flushPendingDbSave()
+            .catch(() => undefined)
+            .finally(() => {
+              origJson(body);
+            });
+          return res;
+        }) as Response['json'];
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
   });
   app.use(authMiddleware);
 
@@ -2977,6 +2997,12 @@ export function createApiApp() {
       reports: db.reports,
     };
     res.json(safeExport);
+  });
+
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('[Thinklive API Error]', err);
+    if (res.headersSent) return;
+    res.status(500).json({ error: 'Erro interno no servidor ao processar sua solicitação.' });
   });
 
   return app;

@@ -1,7 +1,12 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { supabase } from './supabase';
+import {
+  isSupabaseEnabled,
+  loadRemoteDbState,
+  saveRemoteDbState,
+  supabase,
+} from './supabase';
 import {
   CommentRecord,
   CommentWithAuthor,
@@ -827,6 +832,190 @@ export function isUserDeveloperAdmin(user?: UserRecord | null): boolean {
 }
 
 let dbCache: DatabaseSchema | null = null;
+let lastSupabaseSyncAt = 0;
+let supabaseInitDone = false;
+let pendingSupabaseSave: Promise<void> = Promise.resolve();
+let hasQueuedSupabaseWrite = false;
+
+function normalizeDbSchema(db: DatabaseSchema): boolean {
+  let changed = false;
+  if (!Array.isArray(db.mediaReviews)) {
+    db.mediaReviews = [];
+    changed = true;
+  }
+  if (!Array.isArray(db.mediaComments)) {
+    db.mediaComments = [];
+    changed = true;
+  }
+  if (!Array.isArray(db.mediaShelfEntries)) {
+    db.mediaShelfEntries = [];
+    changed = true;
+  }
+  if (!Array.isArray(db.diaryEntries)) {
+    db.diaryEntries = [];
+    changed = true;
+  }
+  if (!Array.isArray(db.diaryLikes)) {
+    db.diaryLikes = [];
+    changed = true;
+  }
+  if (!Array.isArray(db.podcastStates)) {
+    db.podcastStates = [];
+    changed = true;
+  }
+  if (!db.siteConfig) {
+    db.siteConfig = makeDefaultSiteConfig();
+    changed = true;
+  }
+  for (const u of db.users) {
+    if (u.isDemo && !u.passwordHint) {
+      u.passwordHint = 'Nome da plataforma em minúsculas + 123 (thinklive123)';
+      changed = true;
+    }
+    if (!u.musicLibrary) {
+      u.musicLibrary = makeDefaultMusicLibrary();
+      changed = true;
+    }
+    if (!u.customization.sectionOrder.includes('music_library')) {
+      const idx = u.customization.sectionOrder.indexOf('cultural');
+      if (idx >= 0) u.customization.sectionOrder.splice(idx + 1, 0, 'music_library');
+      else u.customization.sectionOrder.push('music_library');
+      changed = true;
+    }
+  }
+  const extraDemoPosts: PostRecord[] = [
+    {
+      id: 'post_demo_8',
+      authorId: 'demo_user_clara',
+      type: 'diario',
+      category: 'Diários',
+      title: 'Notas de fim de tarde sobre silêncio e cadernos em branco',
+      content:
+        'Abri a janela às cinco e meia e o vento trouxe cheiro de terra molhada antes mesmo da primeira gota. Às vezes basta anotar três frases honestas antes de fechar o dia para devolver contorno ao que parecia disperso.',
+      status: 'published',
+      isDemo: true,
+      sharesCount: 5,
+      createdAt: new Date(Date.now() - 10 * 3600 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 10 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: 'post_demo_9',
+      authorId: 'demo_user_mateus',
+      type: 'fotografia',
+      category: 'Fotografia',
+      title: 'Última luz no terraço em filme instantâneo',
+      subtitle: 'Retrato espontâneo entre amigas ao pôr do sol.',
+      content:
+        'Sem posar nem repetir o clique: a luz alaranjada durou menos de quatro minutos antes de o céu virar índigo.',
+      coverImage: '/src/assets/images/polaroid_rooftop_friends_1794866428102.jpg',
+      imageCaption: 'Filme instantâneo 600 — Arquivo de demonstração.',
+      status: 'published',
+      isDemo: true,
+      sharesCount: 13,
+      createdAt: new Date(Date.now() - 17 * 3600 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 17 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: 'post_demo_10',
+      authorId: 'demo_user_arquivo',
+      type: 'poema',
+      category: 'Poemas',
+      title: 'Geografia mínima da chuva na vidraça',
+      content:
+        'Cada gota inventa um rio breve\nque não sabe o nome do mar,\ne ainda assim desce o vidro\ncomo quem cumpre uma promessa inteira\nno intervalo de um suspiro.',
+      ambientSoundId: 'chuva_janela',
+      status: 'published',
+      isDemo: true,
+      sharesCount: 15,
+      createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: 'post_demo_11',
+      authorId: 'demo_user_mateus',
+      type: 'resenha',
+      category: 'Filmes & Séries',
+      title: 'Normal People e a coreografia do não dito',
+      subtitle: 'Como enquadramentos próximos transformam hesitações em linguagem cinematográfica.',
+      content:
+        'Mais do que uma história sobre desencontros entre Dublin e Sligo, a série observa o modo como dois jovens aprendem a respirar no mesmo cômodo sem conseguir nomear o próprio afeto.',
+      coverImage: '/src/assets/images/cinema_projector_night_1794866429083.jpg',
+      reviewMeta: {
+        mediaType: 'serie',
+        workTitle: 'Normal People',
+        creator: 'Lenny Abrahamson & Hettie Macdonald',
+        year: '2020',
+        rating: 4.5,
+      },
+      status: 'published',
+      isDemo: true,
+      sharesCount: 12,
+      createdAt: new Date(Date.now() - 38 * 3600 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 38 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: 'post_demo_12',
+      authorId: 'demo_user_arquivo',
+      type: 'arte_cultura',
+      category: 'Arte e cultura',
+      title: 'Ateliês independentes, zines e a volta da risografia artesanal',
+      subtitle: 'Por que publicações impressas em duas cores seguem fascinando leitores jovens.',
+      content:
+        'Entre papéis texturizados, tintas vegetais e tiragens numeradas, o zine continua sendo um território livre para experimentar imagem e palavra fora da padronização digital.',
+      coverImage: '/src/assets/images/zine_art_studio_1794866430762.jpg',
+      imageCaption: 'Mesa de estúdio e zines — demonstração cultural.',
+      status: 'published',
+      isDemo: true,
+      sharesCount: 8,
+      createdAt: new Date(Date.now() - 50 * 3600 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 50 * 3600 * 1000).toISOString(),
+    },
+  ];
+  for (const extra of extraDemoPosts) {
+    if (!db.posts.some((p) => p.id === extra.id)) {
+      db.posts.push(extra);
+      changed = true;
+    }
+  }
+  const demoPoem2 = db.posts.find((p) => p.id === 'post_demo_2');
+  if (demoPoem2 && !demoPoem2.ambientSoundId) {
+    demoPoem2.ambientSoundId = 'piano';
+    if (demoPoem2.spotifyItem) delete demoPoem2.spotifyItem;
+    changed = true;
+  }
+  return changed;
+}
+
+export async function ensureDbReady(): Promise<void> {
+  const localDb = getDb();
+  if (!isSupabaseEnabled() || !supabase) return;
+  const now = Date.now();
+  const shouldRefresh = !supabaseInitDone || (IS_VERCEL && now - lastSupabaseSyncAt > 4000);
+  if (!shouldRefresh) return;
+
+  // Flush any queued write before pulling remote state
+  await flushPendingDbSave();
+  const remote = await loadRemoteDbState<DatabaseSchema>();
+  if (remote?.payload && Array.isArray(remote.payload.users)) {
+    dbCache = remote.payload;
+    const migrated = normalizeDbSchema(dbCache);
+    lastSupabaseSyncAt = Date.now();
+    supabaseInitDone = true;
+    if (migrated) {
+      await saveRemoteDbState(dbCache);
+    }
+  } else if (!supabaseInitDone) {
+    supabaseInitDone = true;
+    lastSupabaseSyncAt = Date.now();
+    await saveRemoteDbState(localDb);
+  }
+}
+
+export async function flushPendingDbSave(): Promise<void> {
+  if (!hasQueuedSupabaseWrite) return;
+  hasQueuedSupabaseWrite = false;
+  await pendingSupabaseSave;
+}
 
 export function getDb(): DatabaseSchema {
   if (dbCache) return dbCache;
@@ -841,151 +1030,7 @@ export function getDb(): DatabaseSchema {
     try {
       const raw = fs.readFileSync(sourceDbFile, 'utf-8');
       dbCache = JSON.parse(raw) as DatabaseSchema;
-      let changed = false;
-      if (!Array.isArray(dbCache.mediaReviews)) {
-        dbCache.mediaReviews = [];
-        changed = true;
-      }
-      if (!Array.isArray(dbCache.mediaComments)) {
-        dbCache.mediaComments = [];
-        changed = true;
-      }
-      if (!Array.isArray(dbCache.mediaShelfEntries)) {
-        dbCache.mediaShelfEntries = [];
-        changed = true;
-      }
-      if (!Array.isArray(dbCache.diaryEntries)) {
-        dbCache.diaryEntries = [];
-        changed = true;
-      }
-      if (!Array.isArray(dbCache.diaryLikes)) {
-        dbCache.diaryLikes = [];
-        changed = true;
-      }
-      if (!Array.isArray(dbCache.podcastStates)) {
-        dbCache.podcastStates = [];
-        changed = true;
-      }
-      if (!dbCache.siteConfig) {
-        dbCache.siteConfig = makeDefaultSiteConfig();
-        changed = true;
-      }
-      for (const u of dbCache.users) {
-        if (u.isDemo && !u.passwordHint) {
-          u.passwordHint = 'Nome da plataforma em minúsculas + 123 (thinklive123)';
-          changed = true;
-        }
-        if (!u.musicLibrary) {
-          u.musicLibrary = makeDefaultMusicLibrary();
-          changed = true;
-        }
-        if (!u.customization.sectionOrder.includes('music_library')) {
-          const idx = u.customization.sectionOrder.indexOf('cultural');
-          if (idx >= 0) u.customization.sectionOrder.splice(idx + 1, 0, 'music_library');
-          else u.customization.sectionOrder.push('music_library');
-          changed = true;
-        }
-      }
-      const extraDemoPosts: PostRecord[] = [
-        {
-          id: 'post_demo_8',
-          authorId: 'demo_user_clara',
-          type: 'diario',
-          category: 'Diários',
-          title: 'Notas de fim de tarde sobre silêncio e cadernos em branco',
-          content:
-            'Abri a janela às cinco e meia e o vento trouxe cheiro de terra molhada antes mesmo da primeira gota. Às vezes basta anotar três frases honestas antes de fechar o dia para devolver contorno ao que parecia disperso.',
-          status: 'published',
-          isDemo: true,
-          sharesCount: 5,
-          createdAt: new Date(Date.now() - 10 * 3600 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 10 * 3600 * 1000).toISOString(),
-        },
-        {
-          id: 'post_demo_9',
-          authorId: 'demo_user_mateus',
-          type: 'fotografia',
-          category: 'Fotografia',
-          title: 'Última luz no terraço em filme instantâneo',
-          subtitle: 'Retrato espontâneo entre amigas ao pôr do sol.',
-          content:
-            'Sem posar nem repetir o clique: a luz alaranjada durou menos de quatro minutos antes de o céu virar índigo.',
-          coverImage: '/src/assets/images/polaroid_rooftop_friends_1794866428102.jpg',
-          imageCaption: 'Filme instantâneo 600 — Arquivo de demonstração.',
-          status: 'published',
-          isDemo: true,
-          sharesCount: 13,
-          createdAt: new Date(Date.now() - 17 * 3600 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 17 * 3600 * 1000).toISOString(),
-        },
-        {
-          id: 'post_demo_10',
-          authorId: 'demo_user_arquivo',
-          type: 'poema',
-          category: 'Poemas',
-          title: 'Geografia mínima da chuva na vidraça',
-          content:
-            'Cada gota inventa um rio breve\nque não sabe o nome do mar,\ne ainda assim desce o vidro\ncomo quem cumpre uma promessa inteira\nno intervalo de um suspiro.',
-          ambientSoundId: 'chuva_janela',
-          status: 'published',
-          isDemo: true,
-          sharesCount: 15,
-          createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-        },
-        {
-          id: 'post_demo_11',
-          authorId: 'demo_user_mateus',
-          type: 'resenha',
-          category: 'Filmes & Séries',
-          title: 'Normal People e a coreografia do não dito',
-          subtitle: 'Como enquadramentos próximos transformam hesitações em linguagem cinematográfica.',
-          content:
-            'Mais do que uma história sobre desencontros entre Dublin e Sligo, a série observa o modo como dois jovens aprendem a respirar no mesmo cômodo sem conseguir nomear o próprio afeto.',
-          coverImage: '/src/assets/images/cinema_projector_night_1794866429083.jpg',
-          reviewMeta: {
-            mediaType: 'serie',
-            workTitle: 'Normal People',
-            creator: 'Lenny Abrahamson & Hettie Macdonald',
-            year: '2020',
-            rating: 4.5,
-          },
-          status: 'published',
-          isDemo: true,
-          sharesCount: 12,
-          createdAt: new Date(Date.now() - 38 * 3600 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 38 * 3600 * 1000).toISOString(),
-        },
-        {
-          id: 'post_demo_12',
-          authorId: 'demo_user_arquivo',
-          type: 'arte_cultura',
-          category: 'Arte e cultura',
-          title: 'Ateliês independentes, zines e a volta da risografia artesanal',
-          subtitle: 'Por que publicações impressas em duas cores seguem fascinando leitores jovens.',
-          content:
-            'Entre papéis texturizados, tintas vegetais e tiragens numeradas, o zine continua sendo um território livre para experimentar imagem e palavra fora da padronização digital.',
-          coverImage: '/src/assets/images/zine_art_studio_1794866430762.jpg',
-          imageCaption: 'Mesa de estúdio e zines — demonstração cultural.',
-          status: 'published',
-          isDemo: true,
-          sharesCount: 8,
-          createdAt: new Date(Date.now() - 50 * 3600 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 50 * 3600 * 1000).toISOString(),
-        },
-      ];
-      for (const extra of extraDemoPosts) {
-        if (!dbCache.posts.some((p) => p.id === extra.id)) {
-          dbCache.posts.push(extra);
-          changed = true;
-        }
-      }
-      const demoPoem2 = dbCache.posts.find((p) => p.id === 'post_demo_2');
-      if (demoPoem2 && !demoPoem2.ambientSoundId) {
-        demoPoem2.ambientSoundId = 'piano';
-        if (demoPoem2.spotifyItem) delete demoPoem2.spotifyItem;
-        changed = true;
-      }
+      const changed = normalizeDbSchema(dbCache);
       if (changed) saveDb();
       return dbCache;
     } catch {
@@ -1006,6 +1051,15 @@ export function saveDb(): void {
     fs.renameSync(tmpFile, DB_FILE);
   } catch {
     // Keep in-memory state alive even if disk write fails on serverless
+  }
+  if (isSupabaseEnabled() && dbCache) {
+    const snapshot = dbCache;
+    hasQueuedSupabaseWrite = true;
+    lastSupabaseSyncAt = Date.now();
+    pendingSupabaseSave = pendingSupabaseSave
+      .then(() => saveRemoteDbState(snapshot))
+      .then(() => undefined)
+      .catch(() => undefined);
   }
 }
 
