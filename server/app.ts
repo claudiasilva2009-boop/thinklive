@@ -13,6 +13,7 @@ import {
   getDb,
   getNotificationsEnriched,
   getOrCreatePodcastState,
+  getOrCreateSiteConfig,
   getSavedItemsEnriched,
   getUserMediaLibrary,
   getWorkCommentsEnriched,
@@ -20,10 +21,13 @@ import {
   getWorkReviewsEnriched,
   hashPassword,
   IS_VERCEL,
+  isUserDeveloperAdmin,
   makeDefaultCustomization,
   makeDefaultMusicLibrary,
+  makeDefaultSiteConfig,
   mapPostCategoryToFavoriteCategory,
   saveDb,
+  toPublicSiteConfig,
   toPublicUser,
   UPLOADS_DIR,
   verifyPassword,
@@ -51,15 +55,7 @@ import {
   PODCAST_GENRES,
   searchPodcastCatalog,
 } from './podcastService';
-import {
-  buildSpotifyAuthUrl,
-  disconnectSpotifySession,
-  exchangeSpotifyCode,
-  getSpotifyPersonalDiscoveries,
-  getUserSpotifyStatus,
-  resolvePendingState,
-  searchSpotifyCatalog,
-} from './spotifyService';
+import { searchSpotifyCatalog } from './spotifyService';
 import {
   CatalogMediaKind,
   CatalogWorkSnapshot,
@@ -76,15 +72,25 @@ import {
   ProfileCustomization,
   Shelf,
   ShelfItem,
+  SiteConfigPublic,
   SpotifyItemRef,
+  TabHeroOverride,
+  TopCategory,
+  UserPublic,
   UserRecord,
 } from '../src/types/thinklive';
 
-const SESSION_SECRET = process.env.SESSION_SECRET || 'thinklive-editorial-secret-2026';
+const EPHEMERAL_FALLBACK_SECRET = crypto.randomBytes(32).toString('hex');
+const SESSION_SECRET =
+  process.env.SESSION_SECRET ||
+  process.env.VERCEL_DEPLOYMENT_ID ||
+  EPHEMERAL_FALLBACK_SECRET;
 const COOKIE_NAME = 'thinklive_session';
+const DEV_COOKIE_NAME = 'thinklive_dev_session';
 
 interface AuthRequest extends Request {
   userId?: string | null;
+  devAuthorized?: boolean;
 }
 
 function signToken(userId: string): string {
@@ -98,12 +104,53 @@ function verifyToken(token: string): string | null {
     const [payload, sig] = token.split('.');
     if (!payload || !sig) return null;
     const expected = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+    if (sig.length !== expected.length) return null;
     if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
     const parsed = JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8')) as { uid?: string };
     return parsed.uid || null;
   } catch {
     return null;
   }
+}
+
+function signDevToken(subject: string): string {
+  const payload = Buffer.from(JSON.stringify({ dev: true, sub: subject, iat: Date.now() })).toString('base64url');
+  const sig = crypto.createHmac('sha256', SESSION_SECRET).update(`dev:${payload}`).digest('base64url');
+  return `${payload}.${sig}`;
+}
+
+function verifyDevToken(token: string): boolean {
+  try {
+    const [payload, sig] = token.split('.');
+    if (!payload || !sig) return false;
+    const expected = crypto.createHmac('sha256', SESSION_SECRET).update(`dev:${payload}`).digest('base64url');
+    if (sig.length !== expected.length) return false;
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false;
+    const parsed = JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8')) as { dev?: boolean };
+    return parsed.dev === true;
+  } catch {
+    return false;
+  }
+}
+
+function safeEqualText(a: string, b: string): boolean {
+  const ha = crypto.createHash('sha256').update(a).digest();
+  const hb = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
+
+function sanitizeSafeUrl(raw?: string): string {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('/')) return trimmed;
+  if (/^data:image\/(png|jpeg|jpg|webp|gif|avif|svg\+xml);base64,/i.test(trimmed)) return trimmed;
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return trimmed;
+  } catch {
+    return '';
+  }
+  return '';
 }
 
 function parseCookies(cookieHeader?: string): Record<string, string> {
@@ -121,28 +168,43 @@ function parseCookies(cookieHeader?: string): Record<string, string> {
 
 function authMiddleware(req: AuthRequest, _res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
+  const cookies = parseCookies(req.headers.cookie);
   let token: string | undefined;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.slice(7).trim();
   } else {
-    const cookies = parseCookies(req.headers.cookie);
     token = cookies[COOKIE_NAME];
   }
+  const db = getDb();
   if (token) {
     const uid = verifyToken(token);
-    if (uid) {
-      const db = getDb();
-      if (db.users.some((u) => u.id === uid)) {
-        req.userId = uid;
-      }
+    if (uid && db.users.some((u) => u.id === uid)) {
+      req.userId = uid;
     }
   }
+
+  const devHeader = req.headers['x-thinklive-dev-token'];
+  const devToken =
+    (typeof devHeader === 'string' && devHeader.trim()) || cookies[DEV_COOKIE_NAME] || '';
+  const currentUser = req.userId ? db.users.find((u) => u.id === req.userId) : null;
+  if ((devToken && verifyDevToken(devToken)) || isUserDeveloperAdmin(currentUser)) {
+    req.devAuthorized = true;
+  }
+
   next();
 }
 
 function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
   if (!req.userId) {
     res.status(401).json({ error: 'Autenticação necessária para esta ação.' });
+    return;
+  }
+  next();
+}
+
+function requireDeveloperAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.devAuthorized) {
+    res.status(403).json({ error: 'Acesso restrito exclusivamente à desenvolvedora do site.' });
     return;
   }
   next();
@@ -161,6 +223,23 @@ function setSessionCookie(res: Response, token: string) {
   res.setHeader('Set-Cookie', attrs.join('; '));
 }
 
+function setDevCookie(res: Response, token: string) {
+  const isProd = process.env.NODE_ENV === 'production' || IS_VERCEL;
+  const attrs = [
+    `${DEV_COOKIE_NAME}=${encodeURIComponent(token)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    `Max-Age=${60 * 60 * 24 * 14}`,
+  ];
+  if (isProd) attrs.push('Secure');
+  res.append('Set-Cookie', attrs.join('; '));
+}
+
+function clearDevCookie(res: Response) {
+  res.append('Set-Cookie', `${DEV_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
+}
+
 function clearSessionCookie(res: Response) {
   res.setHeader('Set-Cookie', `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`);
 }
@@ -176,7 +255,14 @@ export function createApiApp() {
 
   const app = express();
   app.set('trust proxy', 1);
-  app.use(express.json({ limit: '25mb' }));
+  const jsonParser = express.json({ limit: '25mb' });
+  app.use((req, res, next) => {
+    if (req.body !== undefined && req.body !== null && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+      next();
+      return;
+    }
+    jsonParser(req, res, next);
+  });
   app.use(authMiddleware);
 
   // Serve uploaded user images (local + bundled fallback on Vercel)
@@ -1494,6 +1580,13 @@ export function createApiApp() {
   app.get('/api/news/stream', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
+
+    if (IS_VERCEL) {
+      res.write('retry: 300000\n: serverless-polling-active\n\n');
+      res.end();
+      return;
+    }
+
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders?.();
 
@@ -1511,93 +1604,23 @@ export function createApiApp() {
     });
   });
 
-  // ---------------- MÓDULO 2 & 3: SPOTIFY & BIBLIOTECA MUSICAL ----------------
-  function getSpotifySessionKey(req: AuthRequest): string {
-    return req.userId || `anon_${req.ip || 'guest'}`;
-  }
-
-  app.get('/api/spotify/status', (req: AuthRequest, res) => {
-    res.json(getUserSpotifyStatus(getSpotifySessionKey(req)));
+  // ---------------- MÓDULO 2 & 3: CATÁLOGO MUSICAL PÚBLICO & BIBLIOTECA MUSICAL ----------------
+  app.get('/api/spotify/status', (_req: AuthRequest, res) => {
+    res.json({
+      configured: true,
+      redirectUri: '',
+      connected: false,
+      account: null,
+    });
   });
 
-  app.get('/api/spotify/auth-url', requireAuth, (req: AuthRequest, res) => {
-    const url = buildSpotifyAuthUrl(getSpotifySessionKey(req));
-    if (!url) {
-      res.status(400).json({
-        error: 'Spotify OAuth não configurado. Defina SPOTIFY_CLIENT_ID e SPOTIFY_CLIENT_SECRET no ambiente do servidor.',
-      });
-      return;
-    }
-    res.json({ url });
-  });
-
-  const spotifyCallbackHandler = async (req: Request, res: Response) => {
-    const { code, state, error } = req.query as Record<string, string>;
-    if (error || !code || !state) {
-      res.status(400).send(`
-        <html><body style="font-family:sans-serif;padding:24px;">
-          <h3>Autorização do Spotify cancelada ou inválida</h3>
-          <p>${error || 'Parâmetros ausentes.'}</p>
-          <script>
-            if (window.opener) {
-              window.opener.postMessage({ type: 'SPOTIFY_OAUTH_ERROR', error: ${JSON.stringify(error || 'Autorização cancelada')} }, '*');
-              window.close();
-            }
-          </script>
-        </body></html>
-      `);
-      return;
-    }
-
-    const sessionKey = resolvePendingState(state);
-    if (!sessionKey) {
-      res.status(400).send('<p>Estado OAuth inválido ou expirado. Feche esta janela e tente novamente.</p>');
-      return;
-    }
-
-    try {
-      await exchangeSpotifyCode(code, sessionKey);
-      res.send(`
-        <html>
-          <body style="font-family:sans-serif;padding:24px;background:#FBF9F5;color:#1C1917;">
-            <p>Conta Spotify conectada à Thinklive. Esta janela será fechada automaticamente.</p>
-            <script>
-              if (window.opener) {
-                window.opener.postMessage({ type: 'SPOTIFY_OAUTH_SUCCESS' }, '*');
-                window.close();
-              } else {
-                window.location.href = '/';
-              }
-            </script>
-          </body>
-        </html>
-      `);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao conectar Spotify';
-      res.status(500).send(`
-        <html><body style="font-family:sans-serif;padding:24px;">
-          <p>${msg}</p>
-          <script>
-            if (window.opener) {
-              window.opener.postMessage({ type: 'SPOTIFY_OAUTH_ERROR', error: ${JSON.stringify(msg)} }, '*');
-              window.close();
-            }
-          </script>
-        </body></html>
-      `);
-    }
-  };
-
-  app.get(['/api/spotify/callback', '/api/spotify/callback/'], spotifyCallbackHandler);
-
-  app.post('/api/spotify/disconnect', requireAuth, (req: AuthRequest, res) => {
-    disconnectSpotifySession(getSpotifySessionKey(req));
+  app.post('/api/spotify/disconnect', requireAuth, (_req: AuthRequest, res) => {
     res.json({ ok: true });
   });
 
   app.get('/api/spotify/search', async (req: AuthRequest, res) => {
     const q = String(req.query.q || '').trim();
-    const rawType = String(req.query.type || 'track,artist,album,playlist');
+    const rawType = String(req.query.type || 'track,artist,album');
     if (!q) {
       res.json({ tracks: [], artists: [], albums: [], playlists: [] });
       return;
@@ -1611,23 +1634,22 @@ export function createApiApp() {
     try {
       const results = await searchSpotifyCatalog(
         q,
-        types.length > 0 ? types : ['track', 'artist', 'album', 'playlist'],
-        getSpotifySessionKey(req)
+        types.length > 0 ? types : ['track', 'artist', 'album']
       );
       res.json(results);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Falha ao pesquisar no Spotify.';
+      const message = err instanceof Error ? err.message : 'Falha ao pesquisar catálogo musical.';
       res.status(400).json({ error: message });
     }
   });
 
-  app.get('/api/spotify/discoveries', requireAuth, async (req: AuthRequest, res) => {
-    try {
-      const data = await getSpotifyPersonalDiscoveries(getSpotifySessionKey(req));
-      res.json(data);
-    } catch (err) {
-      res.status(400).json({ error: err instanceof Error ? err.message : 'Erro ao carregar descobertas do Spotify.' });
-    }
+  app.get('/api/spotify/discoveries', requireAuth, (_req: AuthRequest, res) => {
+    res.json({
+      connected: false,
+      topTracks: [],
+      topArtists: [],
+      playlists: [],
+    });
   });
 
   // Profile Music Library ("Minha biblioteca musical")
@@ -2399,11 +2421,22 @@ export function createApiApp() {
       const headers: Record<string, string> = {
         'User-Agent': 'ThinkliveAudioPlayer/1.0',
       };
-      if (req.headers.range) headers['Range'] = String(req.headers.range);
+      if (req.headers.range) {
+        headers['Range'] = String(req.headers.range);
+      } else if (IS_VERCEL) {
+        // Keep individual serverless responses well below Vercel's 4.5MB limit
+        headers['Range'] = 'bytes=0-1572863';
+      }
 
       const upstream = await fetch(rawUrl, { headers, redirect: 'follow' });
       if (!upstream.ok && upstream.status !== 206) {
         res.status(upstream.status).end();
+        return;
+      }
+
+      const contentLen = Number(upstream.headers.get('content-length') || '0');
+      if (IS_VERCEL && contentLen > 3_500_000) {
+        res.redirect(302, rawUrl);
         return;
       }
 
@@ -2502,6 +2535,449 @@ export function createApiApp() {
     }
   });
 
+  // ---------------- SITE CONFIG & DEVELOPER-ONLY ADMIN ----------------
+  app.get('/api/site-config', (_req, res) => {
+    const cfg = getOrCreateSiteConfig();
+    res.json({ siteConfig: toPublicSiteConfig(cfg) });
+  });
+
+  app.get('/api/admin/status', (req: AuthRequest, res) => {
+    const cfg = getOrCreateSiteConfig();
+    const usesEnvPasscode = Boolean((process.env.DEVELOPER_PASSCODE || '').trim());
+    const hasClaimedPasscode = Boolean(cfg.developerPasscodeHash);
+    res.json({
+      unlocked: Boolean(req.devAuthorized),
+      hasClaimedPasscode,
+      usesEnvPasscode,
+      hasLinkedAccount: Boolean(cfg.developerUserId || cfg.developerEmail || process.env.DEVELOPER_EMAIL),
+    });
+  });
+
+  app.post('/api/admin/claim', (req: AuthRequest, res) => {
+    const cfg = getOrCreateSiteConfig();
+    const envPass = (process.env.DEVELOPER_PASSCODE || '').trim();
+    if (envPass || cfg.developerPasscodeHash) {
+      res.status(409).json({
+        error: 'O acesso da desenvolvedora já foi configurado. Use a senha mestra para entrar.',
+      });
+      return;
+    }
+
+    const { passcode, developerEmail } = req.body as {
+      passcode?: string;
+      developerEmail?: string;
+    };
+    const cleanPass = (passcode || '').trim();
+    if (cleanPass.length < 8) {
+      res.status(400).json({
+        error: 'Defina uma senha mestra de desenvolvedora com pelo menos 8 caracteres.',
+      });
+      return;
+    }
+
+    const db = getDb();
+    cfg.developerPasscodeHash = hashPassword(cleanPass);
+
+    if (req.userId) {
+      const user = db.users.find((u) => u.id === req.userId);
+      if (user) {
+        user.role = 'developer';
+        cfg.developerUserId = user.id;
+        cfg.developerEmail = user.email;
+      }
+    } else if (developerEmail && developerEmail.includes('@')) {
+      cfg.developerEmail = developerEmail.trim().toLowerCase();
+      const matched = db.users.find((u) => u.email.toLowerCase() === cfg.developerEmail);
+      if (matched) {
+        matched.role = 'developer';
+        cfg.developerUserId = matched.id;
+      }
+    }
+
+    cfg.updatedAt = new Date().toISOString();
+    saveDb();
+
+    const devToken = signDevToken(cfg.developerUserId || 'developer');
+    setDevCookie(res, devToken);
+    res.status(201).json({
+      unlocked: true,
+      devToken,
+      user: req.userId
+        ? (() => {
+            const u = db.users.find((x) => x.id === req.userId);
+            return u ? toPublicUser(u, req.userId) : null;
+          })()
+        : null,
+    });
+  });
+
+  app.post('/api/admin/unlock', (req: AuthRequest, res) => {
+    const cfg = getOrCreateSiteConfig();
+    const { passcode } = req.body as { passcode?: string };
+    const cleanPass = (passcode || '').trim();
+    if (!cleanPass) {
+      res.status(400).json({ error: 'Informe a senha mestra da desenvolvedora.' });
+      return;
+    }
+
+    const envPass = (process.env.DEVELOPER_PASSCODE || '').trim();
+    let valid = false;
+    if (envPass) {
+      valid = safeEqualText(cleanPass, envPass);
+    } else if (cfg.developerPasscodeHash) {
+      valid = verifyPassword(cleanPass, cfg.developerPasscodeHash);
+    }
+
+    if (!valid) {
+      res.status(401).json({ error: 'Senha mestra inválida.' });
+      return;
+    }
+
+    const db = getDb();
+    let linkedUser: UserPublic | null = null;
+    if (req.userId) {
+      const user = db.users.find((u) => u.id === req.userId);
+      if (user && !cfg.developerUserId) {
+        user.role = 'developer';
+        cfg.developerUserId = user.id;
+        cfg.developerEmail = user.email;
+        saveDb();
+      }
+      if (user) {
+        linkedUser = toPublicUser(user, req.userId);
+      }
+    }
+
+    const devToken = signDevToken(cfg.developerUserId || 'developer');
+    setDevCookie(res, devToken);
+    res.json({ unlocked: true, devToken, user: linkedUser });
+  });
+
+  app.post('/api/admin/lock', (_req, res) => {
+    clearDevCookie(res);
+    res.json({ ok: true });
+  });
+
+  app.get('/api/admin/overview', requireDeveloperAdmin, (req: AuthRequest, res) => {
+    const db = getDb();
+    const cfg = getOrCreateSiteConfig();
+
+    const posts = db.posts
+      .map((p) => enrichPost(p, req.userId))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const users = db.users
+      .map((u) => ({
+        ...toPublicUser(u, req.userId),
+        email: u.email,
+        role: u.role || (isUserDeveloperAdmin(u) ? 'developer' : 'user'),
+        postsCount: db.posts.filter((p) => p.authorId === u.id).length,
+      }))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const reports = db.reports
+      .map((r) => {
+        const reporter = db.users.find((u) => u.id === r.reporterId);
+        return {
+          ...r,
+          reporterName: reporter?.displayName || 'Usuário',
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    res.json({
+      siteConfig: toPublicSiteConfig(cfg),
+      posts,
+      users,
+      reports,
+      stats: {
+        usersCount: db.users.length,
+        publishedPostsCount: db.posts.filter((p) => p.status === 'published').length,
+        draftPostsCount: db.posts.filter((p) => p.status === 'draft').length,
+        commentsCount: db.comments.length,
+        diariesCount: db.diaryEntries.length,
+        reportsCount: db.reports.length,
+      },
+    });
+  });
+
+  app.patch('/api/admin/site-config', requireDeveloperAdmin, (req: AuthRequest, res) => {
+    const cfg = getOrCreateSiteConfig();
+    const body = req.body as Partial<SiteConfigPublic>;
+
+    if (typeof body.brandName === 'string') {
+      cfg.brandName = body.brandName.trim().slice(0, 40) || 'Thinklive';
+    }
+    if (typeof body.brandTagline === 'string') {
+      cfg.brandTagline = body.brandTagline.trim().slice(0, 120);
+    }
+    if (body.defaultSeason && ['outono', 'inverno', 'primavera', 'verao'].includes(body.defaultSeason)) {
+      cfg.defaultSeason = body.defaultSeason;
+    }
+    if (body.announcement && typeof body.announcement === 'object') {
+      cfg.announcement = {
+        enabled: Boolean(body.announcement.enabled),
+        message: String(body.announcement.message || '').trim().slice(0, 260),
+        linkLabel: String(body.announcement.linkLabel || '').trim().slice(0, 48),
+        linkUrl: sanitizeSafeUrl(body.announcement.linkUrl),
+        tone:
+          body.announcement.tone === 'terracota' || body.announcement.tone === 'dark'
+            ? body.announcement.tone
+            : 'warm',
+      };
+    }
+    if (body.homeHero && typeof body.homeHero === 'object') {
+      cfg.homeHero = {
+        editionLabel: String(body.homeHero.editionLabel || '').trim().slice(0, 120),
+        headline: String(body.homeHero.headline || '').trim().slice(0, 180),
+        highlightText: String(body.homeHero.highlightText || '').trim().slice(0, 80),
+        description: String(body.homeHero.description || '').trim().slice(0, 420),
+        quote: String(body.homeHero.quote || '').trim().slice(0, 200),
+        imageUrl: sanitizeSafeUrl(body.homeHero.imageUrl),
+      };
+    }
+    if (body.tabHeroes && typeof body.tabHeroes === 'object') {
+      const nextHeroes: SiteConfigPublic['tabHeroes'] = {};
+      for (const [k, v] of Object.entries(body.tabHeroes)) {
+        if (!v || typeof v !== 'object') continue;
+        const heroVal = v as Partial<TabHeroOverride>;
+        nextHeroes[k as TopCategory] = {
+          title: typeof heroVal.title === 'string' ? heroVal.title.trim().slice(0, 80) : '',
+          phrase: typeof heroVal.phrase === 'string' ? heroVal.phrase.trim().slice(0, 240) : '',
+          kicker: typeof heroVal.kicker === 'string' ? heroVal.kicker.trim().slice(0, 90) : '',
+          imageUrl: typeof heroVal.imageUrl === 'string' ? sanitizeSafeUrl(heroVal.imageUrl) : '',
+        };
+      }
+      cfg.tabHeroes = nextHeroes;
+    }
+    if (Array.isArray(body.hiddenCategories)) {
+      cfg.hiddenCategories = body.hiddenCategories.filter((c): c is TopCategory => typeof c === 'string');
+    }
+    if (Array.isArray(body.pinnedPostIds)) {
+      cfg.pinnedPostIds = body.pinnedPostIds.filter((id): id is string => typeof id === 'string');
+    }
+    if (Array.isArray(body.verifiedUserIds)) {
+      cfg.verifiedUserIds = body.verifiedUserIds.filter((id): id is string => typeof id === 'string');
+    }
+
+    cfg.updatedAt = new Date().toISOString();
+    saveDb();
+    res.json({ siteConfig: toPublicSiteConfig(cfg) });
+  });
+
+  app.post('/api/admin/site-config/reset', requireDeveloperAdmin, (_req, res) => {
+    const db = getDb();
+    const prev = getOrCreateSiteConfig();
+    db.siteConfig = makeDefaultSiteConfig({
+      developerUserId: prev.developerUserId,
+      developerEmail: prev.developerEmail,
+      developerPasscodeHash: prev.developerPasscodeHash,
+    });
+    saveDb();
+    res.json({ siteConfig: toPublicSiteConfig(db.siteConfig) });
+  });
+
+  app.post('/api/admin/passcode', requireDeveloperAdmin, (req, res) => {
+    const envPass = (process.env.DEVELOPER_PASSCODE || '').trim();
+    if (envPass) {
+      res.status(400).json({
+        error: 'A senha mestra está definida via variável de ambiente DEVELOPER_PASSCODE no servidor.',
+      });
+      return;
+    }
+    const { newPasscode } = req.body as { newPasscode?: string };
+    const clean = (newPasscode || '').trim();
+    if (clean.length < 8) {
+      res.status(400).json({ error: 'A nova senha mestra precisa ter pelo menos 8 caracteres.' });
+      return;
+    }
+    const cfg = getOrCreateSiteConfig();
+    cfg.developerPasscodeHash = hashPassword(clean);
+    cfg.updatedAt = new Date().toISOString();
+    saveDb();
+    res.json({ ok: true });
+  });
+
+  app.post('/api/admin/posts', requireDeveloperAdmin, (req: AuthRequest, res) => {
+    const db = getDb();
+    const { type, category, title, subtitle, content, coverImage, imageCaption, status, authorId } = req.body as {
+      type?: PostRecord['type'];
+      category?: TopCategory;
+      title?: string;
+      subtitle?: string;
+      content?: string;
+      coverImage?: string;
+      imageCaption?: string;
+      status?: 'published' | 'draft';
+      authorId?: string;
+    };
+    if (!title?.trim() || !content?.trim()) {
+      res.status(400).json({ error: 'Título e conteúdo são obrigatórios.' });
+      return;
+    }
+    const chosenAuthor =
+      (authorId && db.users.find((u) => u.id === authorId)) ||
+      (req.userId && db.users.find((u) => u.id === req.userId)) ||
+      db.users[0];
+
+    const now = new Date().toISOString();
+    const newPost: PostRecord = {
+      id: makeId('post'),
+      authorId: chosenAuthor.id,
+      type: type || 'artigo',
+      category: category || 'Artigos',
+      title: title.trim(),
+      subtitle: subtitle?.trim() || undefined,
+      content: content.trim(),
+      coverImage: sanitizeSafeUrl(coverImage) || undefined,
+      imageCaption: imageCaption?.trim() || undefined,
+      status: status === 'draft' ? 'draft' : 'published',
+      isDemo: false,
+      sharesCount: 0,
+      createdAt: now,
+      updatedAt: now,
+    };
+    db.posts.unshift(newPost);
+    saveDb();
+    res.status(201).json({ post: enrichPost(newPost, req.userId) });
+  });
+
+  app.patch('/api/admin/posts/:id', requireDeveloperAdmin, (req: AuthRequest, res) => {
+    const db = getDb();
+    const post = db.posts.find((p) => p.id === req.params.id);
+    if (!post) {
+      res.status(404).json({ error: 'Publicação não encontrada.' });
+      return;
+    }
+    const { title, subtitle, content, category, type, coverImage, imageCaption, status } = req.body as {
+      title?: string;
+      subtitle?: string;
+      content?: string;
+      category?: TopCategory;
+      type?: PostRecord['type'];
+      coverImage?: string;
+      imageCaption?: string;
+      status?: 'published' | 'draft';
+    };
+    if (typeof title === 'string' && title.trim()) post.title = title.trim();
+    if (typeof subtitle === 'string') post.subtitle = subtitle.trim() || undefined;
+    if (typeof content === 'string' && content.trim()) post.content = content.trim();
+    if (category) post.category = category;
+    if (type) post.type = type;
+    if (typeof coverImage === 'string') post.coverImage = sanitizeSafeUrl(coverImage) || undefined;
+    if (typeof imageCaption === 'string') post.imageCaption = imageCaption.trim() || undefined;
+    if (status === 'published' || status === 'draft') post.status = status;
+    post.updatedAt = new Date().toISOString();
+    saveDb();
+    res.json({ post: enrichPost(post, req.userId) });
+  });
+
+  app.delete('/api/admin/posts/:id', requireDeveloperAdmin, (req, res) => {
+    const db = getDb();
+    const idx = db.posts.findIndex((p) => p.id === req.params.id);
+    if (idx === -1) {
+      res.status(404).json({ error: 'Publicação não encontrada.' });
+      return;
+    }
+    const [removed] = db.posts.splice(idx, 1);
+    db.likes = db.likes.filter((l) => l.postId !== removed.id);
+    db.comments = db.comments.filter((c) => c.postId !== removed.id);
+    db.savedItems = db.savedItems.filter((s) => s.postId !== removed.id);
+    if (db.siteConfig?.pinnedPostIds) {
+      db.siteConfig.pinnedPostIds = db.siteConfig.pinnedPostIds.filter((id) => id !== removed.id);
+    }
+    saveDb();
+    res.json({ ok: true });
+  });
+
+  app.patch('/api/admin/users/:id', requireDeveloperAdmin, (req: AuthRequest, res) => {
+    const db = getDb();
+    const user = db.users.find((u) => u.id === req.params.id);
+    if (!user) {
+      res.status(404).json({ error: 'Usuário não encontrado.' });
+      return;
+    }
+    const { displayName, bio, isPrivate, verified } = req.body as {
+      displayName?: string;
+      bio?: string;
+      isPrivate?: boolean;
+      verified?: boolean;
+    };
+    if (typeof displayName === 'string' && displayName.trim()) user.displayName = displayName.trim().slice(0, 60);
+    if (typeof bio === 'string') user.bio = bio.trim().slice(0, 300);
+    if (typeof isPrivate === 'boolean') user.isPrivate = isPrivate;
+    if (typeof verified === 'boolean') {
+      const cfg = getOrCreateSiteConfig();
+      const set = new Set(cfg.verifiedUserIds || []);
+      if (verified) set.add(user.id);
+      else set.delete(user.id);
+      cfg.verifiedUserIds = Array.from(set);
+      cfg.updatedAt = new Date().toISOString();
+    }
+    saveDb();
+    res.json({ user: toPublicUser(user, req.userId) });
+  });
+
+  app.delete('/api/admin/users/:id', requireDeveloperAdmin, (req, res) => {
+    const db = getDb();
+    const target = db.users.find((u) => u.id === req.params.id);
+    if (!target) {
+      res.status(404).json({ error: 'Usuário não encontrado.' });
+      return;
+    }
+    if (isUserDeveloperAdmin(target)) {
+      res.status(400).json({ error: 'Não é possível remover a conta da desenvolvedora.' });
+      return;
+    }
+    db.users = db.users.filter((u) => u.id !== target.id);
+    const removedPostIds = new Set(db.posts.filter((p) => p.authorId === target.id).map((p) => p.id));
+    db.posts = db.posts.filter((p) => p.authorId !== target.id);
+    db.comments = db.comments.filter((c) => c.authorId !== target.id && !removedPostIds.has(c.postId));
+    db.likes = db.likes.filter((l) => l.userId !== target.id && !removedPostIds.has(l.postId));
+    db.follows = db.follows.filter((f) => f.followerId !== target.id && f.followingId !== target.id);
+    db.blocks = db.blocks.filter((b) => b.blockerId !== target.id && b.blockedId !== target.id);
+    db.shelves = db.shelves.filter((s) => s.userId !== target.id);
+    db.savedItems = db.savedItems.filter((s) => s.userId !== target.id && !removedPostIds.has(s.postId));
+    saveDb();
+    res.json({ ok: true });
+  });
+
+  app.post('/api/admin/reports/:id/resolve', requireDeveloperAdmin, (req, res) => {
+    const db = getDb();
+    const report = db.reports.find((r) => r.id === req.params.id);
+    if (!report) {
+      res.status(404).json({ error: 'Denúncia não encontrada.' });
+      return;
+    }
+    const { action } = req.body as { action?: 'dismiss' | 'delete_target' };
+    if (action === 'delete_target') {
+      if (report.targetType === 'post') {
+        db.posts = db.posts.filter((p) => p.id !== report.targetId);
+        db.comments = db.comments.filter((c) => c.postId !== report.targetId);
+        db.likes = db.likes.filter((l) => l.postId !== report.targetId);
+        db.savedItems = db.savedItems.filter((s) => s.postId !== report.targetId);
+      } else if (report.targetType === 'comment') {
+        db.comments = db.comments.filter((c) => c.id !== report.targetId && c.parentId !== report.targetId);
+      }
+    }
+    db.reports = db.reports.filter((r) => r.id !== report.id);
+    saveDb();
+    res.json({ ok: true });
+  });
+
+  app.get('/api/admin/export', requireDeveloperAdmin, (_req, res) => {
+    const db = getDb();
+    const safeExport = {
+      exportedAt: new Date().toISOString(),
+      siteConfig: toPublicSiteConfig(db.siteConfig),
+      posts: db.posts,
+      users: db.users.map(({ passwordHash: _ph, ...rest }) => rest),
+      culturalItems: db.culturalItems,
+      diaryEntries: db.diaryEntries,
+      reports: db.reports,
+    };
+    res.json(safeExport);
+  });
 
   return app;
 }

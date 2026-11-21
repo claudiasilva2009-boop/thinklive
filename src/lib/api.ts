@@ -1,4 +1,5 @@
 import {
+  AdminReportView,
   ArtCultureItem,
   ArtCultureTheme,
   CatalogMediaKind,
@@ -21,17 +22,30 @@ import {
   PodcastEpisode,
   PodcastGenre,
   PostRecord,
+  PostType,
   PostWithAuthor,
   ProfileCustomization,
   SavedItemEnriched,
+  SeasonId,
   Shelf,
   ShelfItem,
+  SiteConfigPublic,
   SpotifyItemRef,
+  TopCategory,
   UserPodcastState,
   UserPublic,
 } from '../types/thinklive';
 
 const TOKEN_KEY = 'thinklive_auth_token';
+let inMemoryDevToken: string | null = null;
+
+export function getInMemoryDevToken(): string | null {
+  return inMemoryDevToken;
+}
+
+export function setInMemoryDevToken(token: string | null) {
+  inMemoryDevToken = token;
+}
 
 export function getStoredToken(): string | null {
   try {
@@ -58,6 +72,9 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+  }
+  if (inMemoryDevToken) {
+    headers['x-thinklive-dev-token'] = inMemoryDevToken;
   }
 
   const res = await fetch(url, {
@@ -524,6 +541,110 @@ export const api = {
       `/api/art-culture${qs ? `?${qs}` : ''}`
     );
   },
+
+  // Site Config & Developer Admin
+  getSiteConfig: () => request<{ siteConfig: SiteConfigPublic }>('/api/site-config'),
+  getAdminStatus: () =>
+    request<{
+      unlocked: boolean;
+      hasClaimedPasscode: boolean;
+      usesEnvPasscode: boolean;
+      hasLinkedAccount: boolean;
+    }>('/api/admin/status'),
+  claimAdmin: (payload: { passcode: string; developerEmail?: string }) =>
+    request<{ unlocked: boolean; devToken: string; user: UserPublic | null }>('/api/admin/claim', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  unlockAdmin: (passcode: string) =>
+    request<{ unlocked: boolean; devToken: string; user: UserPublic | null }>('/api/admin/unlock', {
+      method: 'POST',
+      body: JSON.stringify({ passcode }),
+    }),
+  lockAdmin: () => request<{ ok: boolean }>('/api/admin/lock', { method: 'POST' }),
+  getAdminOverview: () =>
+    request<{
+      siteConfig: SiteConfigPublic;
+      posts: PostWithAuthor[];
+      users: (UserPublic & { email: string; role: string; postsCount: number })[];
+      reports: AdminReportView[];
+      stats: {
+        usersCount: number;
+        publishedPostsCount: number;
+        draftPostsCount: number;
+        commentsCount: number;
+        diariesCount: number;
+        reportsCount: number;
+      };
+    }>('/api/admin/overview'),
+  updateSiteConfig: (payload: Partial<SiteConfigPublic>) =>
+    request<{ siteConfig: SiteConfigPublic }>('/api/admin/site-config', {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  resetSiteConfig: () =>
+    request<{ siteConfig: SiteConfigPublic }>('/api/admin/site-config/reset', {
+      method: 'POST',
+    }),
+  changeDevPasscode: (newPasscode: string) =>
+    request<{ ok: boolean }>('/api/admin/passcode', {
+      method: 'POST',
+      body: JSON.stringify({ newPasscode }),
+    }),
+  adminCreatePost: (payload: {
+    type: PostType;
+    category: TopCategory;
+    title: string;
+    subtitle?: string;
+    content: string;
+    coverImage?: string;
+    imageCaption?: string;
+    status?: 'published' | 'draft';
+    authorId?: string;
+  }) =>
+    request<{ post: PostWithAuthor }>('/api/admin/posts', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  adminUpdatePost: (
+    id: string,
+    payload: {
+      title?: string;
+      subtitle?: string;
+      content?: string;
+      category?: TopCategory;
+      type?: PostType;
+      coverImage?: string;
+      imageCaption?: string;
+      status?: 'published' | 'draft';
+    }
+  ) =>
+    request<{ post: PostWithAuthor }>(`/api/admin/posts/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  adminDeletePost: (id: string) =>
+    request<{ ok: boolean }>(`/api/admin/posts/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+  adminUpdateUser: (
+    id: string,
+    payload: { displayName?: string; bio?: string; isPrivate?: boolean; verified?: boolean }
+  ) =>
+    request<{ user: UserPublic }>(`/api/admin/users/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  adminDeleteUser: (id: string) =>
+    request<{ ok: boolean }>(`/api/admin/users/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+  adminResolveReport: (id: string, action: 'dismiss' | 'delete_target') =>
+    request<{ ok: boolean }>(`/api/admin/reports/${encodeURIComponent(id)}/resolve`, {
+      method: 'POST',
+      body: JSON.stringify({ action }),
+    }),
+  adminExportBackup: () => request<Record<string, unknown>>('/api/admin/export'),
 };
 
 export async function readFileAsDataUrl(file: File): Promise<string> {
@@ -557,7 +678,10 @@ export async function readImageFileOptimized(file: File, maxDimension = 1600): P
           return;
         }
         ctx.drawImage(img, 0, 0, targetW, targetH);
-        const compressed = canvas.toDataURL('image/jpeg', 0.84);
+        let compressed = canvas.toDataURL('image/jpeg', 0.84);
+        if (compressed.length > 2_600_000) {
+          compressed = canvas.toDataURL('image/jpeg', 0.66);
+        }
         resolve(compressed.startsWith('data:image/') ? compressed : rawDataUrl);
       } catch {
         resolve(rawDataUrl);

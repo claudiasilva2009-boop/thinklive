@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Compass, Headphones, Search, User as UserIcon } from 'lucide-react';
+import { Bell, ChevronDown, Compass, Headphones, Search, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { TopCategory, UserPublic } from '../types/thinklive';
 import { useAmbientSound } from './AmbientSoundContext';
@@ -34,6 +34,11 @@ interface TopBarProps {
   isExploreActive: boolean;
   isActivityActive?: boolean;
   transparentHome?: boolean;
+  hiddenCategories?: TopCategory[];
+  brandName?: string;
+  brandTagline?: string;
+  showDeveloperButton?: boolean;
+  onOpenDeveloperAdmin?: () => void;
 }
 
 export function TopBar({
@@ -49,11 +54,23 @@ export function TopBar({
   isExploreActive,
   isActivityActive = false,
   transparentHome = false,
+  hiddenCategories = [],
+  brandName = 'Thinklive',
+  brandTagline = '',
+  showDeveloperButton = false,
+  onOpenDeveloperAdmin,
 }: TopBarProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const logoTapTimestampsRef = useRef<number[]>([]);
   const { globalPlaying, panelOpen, togglePanelOpen } = useAmbientSound();
+
+  const hiddenSet = new Set<TopCategory>(hiddenCategories);
+  const visiblePrimaryCategories = PRIMARY_CATEGORIES.filter(
+    (cat) => cat === 'Início' || !hiddenSet.has(cat)
+  );
+  const visibleMoreCategories = MORE_CATEGORIES.filter((cat) => !hiddenSet.has(cat));
 
   useEffect(() => {
     function onScroll() {
@@ -81,7 +98,19 @@ export function TopBar({
     };
   }, []);
 
-  const isMoreCategoryActive = MORE_CATEGORIES.includes(activeCategory);
+  function handleLogoClick() {
+    onSelectCategory('Início');
+    if (!onOpenDeveloperAdmin) return;
+    const now = Date.now();
+    const recent = [...logoTapTimestampsRef.current.filter((ts) => now - ts < 2200), now];
+    logoTapTimestampsRef.current = recent;
+    if (recent.length >= 5) {
+      logoTapTimestampsRef.current = [];
+      onOpenDeveloperAdmin();
+    }
+  }
+
+  const isMoreCategoryActive = visibleMoreCategories.includes(activeCategory);
   const useMinimalGlass = transparentHome && !scrolled;
 
   return (
@@ -96,16 +125,27 @@ export function TopBar({
         {/* Zone 1: Literary Wordmark */}
         <button
           type="button"
-          onClick={() => onSelectCategory('Início')}
-          className="autumn-glow-link whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tl-laranja rounded-md px-1 active:scale-[0.98]"
+          onClick={handleLogoClick}
+          className="autumn-glow-link flex items-baseline gap-2.5 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tl-laranja rounded-md px-1 active:scale-[0.98]"
         >
-          <ThinkliveBrandMark />
+          {brandName && brandName.trim() !== 'Thinklive' ? (
+            <span className="font-editorial font-semibold tracking-tight text-2xl md:text-[28px] text-tl-marrom">
+              {brandName}
+            </span>
+          ) : (
+            <ThinkliveBrandMark />
+          )}
+          {brandTagline?.trim() && (
+            <span className="hidden xl:inline text-[11px] font-literary italic text-tl-marrom-suave">
+              {brandTagline}
+            </span>
+          )}
         </button>
 
         {/* Zone 2: Editorial Single-Line Category Links (desktop) */}
         <nav aria-label="Categorias principais" className="hidden lg:flex items-center gap-5 min-w-0 py-1">
           <div className="flex items-center gap-5 overflow-x-auto no-scrollbar min-w-0">
-            {PRIMARY_CATEGORIES.map((cat) => {
+            {visiblePrimaryCategories.map((cat) => {
               const active = !isExploreActive && !isActivityActive && activeCategory === cat;
               return (
                 <button
@@ -130,58 +170,60 @@ export function TopBar({
             })}
           </div>
 
-          <div className="relative shrink-0" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setMoreOpen((v) => !v)}
-              aria-expanded={moreOpen}
-              aria-haspopup="menu"
-              className={`autumn-glow-link relative flex items-center gap-1 py-2 text-[13px] whitespace-nowrap shrink-0 cursor-pointer ${
-                isMoreCategoryActive && !isExploreActive && !isActivityActive
-                  ? 'text-tl-marrom font-semibold'
-                  : 'text-tl-marrom-suave hover:text-tl-terracota font-medium'
-              }`}
-            >
-              <span>{isMoreCategoryActive && !isExploreActive ? activeCategory : 'Mais'}</span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? 'rotate-180' : ''}`}
-                strokeWidth={1.8}
-              />
-              {isMoreCategoryActive && !isExploreActive && (
-                <span
-                  aria-hidden="true"
-                  className="absolute bottom-0.5 left-0 right-0 h-[2px] bg-tl-laranja rounded-full"
-                />
-              )}
-            </button>
-
-            {moreOpen && (
-              <div
-                role="menu"
-                aria-label="Mais categorias"
-                className="absolute left-0 top-full mt-2 w-56 bg-tl-creme border border-tl-marrom/18 editorial-shadow rounded-2xl p-1.5 z-50 max-h-[70vh] overflow-y-auto"
+          {visibleMoreCategories.length > 0 && (
+            <div className="relative shrink-0" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+                aria-haspopup="menu"
+                className={`autumn-glow-link relative flex items-center gap-1 py-2 text-[13px] whitespace-nowrap shrink-0 cursor-pointer ${
+                  isMoreCategoryActive && !isExploreActive && !isActivityActive
+                    ? 'text-tl-marrom font-semibold'
+                    : 'text-tl-marrom-suave hover:text-tl-terracota font-medium'
+                }`}
               >
-                {MORE_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      onSelectCategory(cat);
-                      setMoreOpen(false);
-                    }}
-                    className={`autumn-glow-surface w-full text-left px-3.5 py-2 rounded-xl text-[13px] cursor-pointer ${
-                      activeCategory === cat
-                        ? 'bg-tl-bege text-tl-terracota font-semibold'
-                        : 'text-tl-marrom hover:bg-tl-bege/65 hover:text-tl-terracota'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                <span>{isMoreCategoryActive && !isExploreActive ? activeCategory : 'Mais'}</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? 'rotate-180' : ''}`}
+                  strokeWidth={1.8}
+                />
+                {isMoreCategoryActive && !isExploreActive && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-0.5 left-0 right-0 h-[2px] bg-tl-laranja rounded-full"
+                  />
+                )}
+              </button>
+
+              {moreOpen && (
+                <div
+                  role="menu"
+                  aria-label="Mais categorias"
+                  className="absolute left-0 top-full mt-2 w-56 bg-tl-creme border border-tl-marrom/18 editorial-shadow rounded-2xl p-1.5 z-50 max-h-[70vh] overflow-y-auto"
+                >
+                  {visibleMoreCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        onSelectCategory(cat);
+                        setMoreOpen(false);
+                      }}
+                      className={`autumn-glow-surface w-full text-left px-3.5 py-2 rounded-xl text-[13px] cursor-pointer ${
+                        activeCategory === cat
+                          ? 'bg-tl-bege text-tl-terracota font-semibold'
+                          : 'text-tl-marrom hover:bg-tl-bege/65 hover:text-tl-terracota'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <button
             type="button"
@@ -203,8 +245,21 @@ export function TopBar({
           </button>
         </nav>
 
-        {/* Zone 3: Ambient Sound, Search, Notifications & Account */}
+        {/* Zone 3: Ambient Sound, Search, Notifications & Account (+ Exclusive Developer button when unlocked) */}
         <div className="flex items-center gap-2 shrink-0">
+          {showDeveloperButton && onOpenDeveloperAdmin && (
+            <button
+              type="button"
+              onClick={onOpenDeveloperAdmin}
+              aria-label="Painel exclusivo da desenvolvedora"
+              title="Painel ADM da Desenvolvedora"
+              className="min-h-[40px] px-3 flex items-center gap-1.5 rounded-full bg-tl-marrom text-[#FAF5EC] border border-[#F2B880]/40 text-xs font-medium hover:bg-tl-terracota active:scale-95 cursor-pointer shadow-sm whitespace-nowrap shrink-0"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#F2B880]" strokeWidth={2} />
+              <span className="hidden sm:inline">Painel Dev</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={togglePanelOpen}
@@ -282,7 +337,7 @@ export function TopBar({
       {/* Horizontal scrollable editorial categories strip for mobile & tablet (< lg) */}
       <div className="lg:hidden border-t border-tl-marrom/10 bg-tl-bege/75">
         <div className="flex items-center gap-4 px-4 h-10 overflow-x-auto no-scrollbar">
-          {[...PRIMARY_CATEGORIES, ...MORE_CATEGORIES].map((cat) => {
+          {[...visiblePrimaryCategories, ...visibleMoreCategories].map((cat) => {
             const active = !isExploreActive && !isActivityActive && activeCategory === cat;
             return (
               <button

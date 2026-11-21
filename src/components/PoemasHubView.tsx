@@ -24,6 +24,7 @@ import { AmbientSoundId, PostWithAuthor, UserPublic } from '../types/thinklive';
 import { useAmbientSound } from './AmbientSoundContext';
 import { AutumnLeafAccent, BotanicalDivider } from './CreativeStickers';
 import { ImageWithFallback, UserAvatar } from './ImageWithFallback';
+import { useSiteConfig } from './SiteConfigContext';
 import { SpotifyItemEmbed } from './SpotifyItemEmbed';
 
 interface PoemasHubViewProps {
@@ -534,6 +535,14 @@ export function PoemasHubView({
 }: PoemasHubViewProps) {
   const [filter, setFilter] = useState<PoemFilter>('todos');
   const { poemPlaying, poemSoundId, stopPoemAtmosphere } = useAmbientSound();
+  const { siteConfig } = useSiteConfig();
+  const poemHeroOverride = siteConfig.tabHeroes?.Poemas;
+  const heroImageUrl = poemHeroOverride?.imageUrl?.trim() || POEMAS_HERO_IMAGE;
+  const heroKicker = poemHeroOverride?.kicker?.trim() || 'Antologia Poética · Thinklive';
+  const heroTitle = poemHeroOverride?.title?.trim() || 'Poemas';
+  const heroPhrase =
+    poemHeroOverride?.phrase?.trim() ||
+    '“Onde o silêncio encontra ritmo, e cada verso pede uma imagem e uma música para permanecer.”';
 
   const filteredPoems = poems
     .filter((p) => {
@@ -565,8 +574,9 @@ export function PoemasHubView({
       <section className="max-w-6xl mx-auto px-4 md:px-8 pt-6">
         <div className="relative rounded-3xl overflow-hidden min-h-[340px] md:min-h-[430px] flex items-end border border-tl-marrom/14 editorial-shadow">
           <img
-            src={POEMAS_HERO_IMAGE}
+            src={heroImageUrl}
             alt="Lírios dourados iluminados em claro-escuro noturno no topo da antologia de poemas"
+            referrerPolicy="no-referrer"
             className="absolute inset-0 w-full h-full object-cover object-[center_42%]"
           />
 
@@ -584,15 +594,15 @@ export function PoemasHubView({
             <div className="max-w-2xl space-y-3">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-[#EAD2B5]">
                 <Feather className="w-3.5 h-3.5 text-[#F2B880]" />
-                <span>Antologia Poética · Thinklive</span>
+                <span>{heroKicker}</span>
               </div>
 
               <h1 className="font-editorial text-5xl sm:text-6xl md:text-[72px] font-semibold text-[#FAF5EC] leading-[0.98] tracking-tight text-balance">
-                Poemas
+                {heroTitle}
               </h1>
 
               <p className="font-editorial italic text-lg sm:text-xl md:text-2xl text-[#F5E3CC] leading-relaxed max-w-xl">
-                “Onde o silêncio encontra ritmo, e cada verso pede uma imagem e uma música para permanecer.”
+                {heroPhrase}
               </p>
             </div>
 

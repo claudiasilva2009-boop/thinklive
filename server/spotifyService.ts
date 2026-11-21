@@ -1,347 +1,154 @@
 import { SpotifyItemRef } from '../src/types/thinklive';
 
-export interface SpotifyOAuthSession {
-  accessToken: string;
-  refreshToken?: string;
-  expiresAt: number;
-  displayName?: string;
-  spotifyUserId?: string;
-  spotifyUrl?: string;
-}
-
-// Ephemeral in-memory stores ONLY (never persisted to disk, never exposed to client)
-const oauthSessions = new Map<string, SpotifyOAuthSession>();
-const pendingStates = new Map<string, { sessionKey: string; createdAt: number }>();
-
-let clientCredentialsCache: { accessToken: string; expiresAt: number } | null = null;
-
-export function getSpotifyConfig() {
-  const clientId = (process.env.SPOTIFY_CLIENT_ID || '').trim();
-  const clientSecret = (process.env.SPOTIFY_CLIENT_SECRET || '').trim();
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : '';
-  const appUrl = (process.env.APP_URL || vercelUrl || 'http://localhost:3000').replace(/\/+$/, '');
-  const redirectUri = `${appUrl}/api/spotify/callback`;
-  return {
-    clientId,
-    clientSecret,
-    redirectUri,
-    configured: Boolean(clientId && clientSecret),
-  };
-}
-
-export function buildSpotifyAuthUrl(sessionKey: string): string | null {
-  const cfg = getSpotifyConfig();
-  if (!cfg.configured) return null;
-
-  const state = `${sessionKey}_${Math.random().toString(36).slice(2, 12)}`;
-  pendingStates.set(state, { sessionKey, createdAt: Date.now() });
-
-  // Clean expired pending states (> 15 min)
-  for (const [k, v] of pendingStates.entries()) {
-    if (Date.now() - v.createdAt > 15 * 60 * 1000) pendingStates.delete(k);
-  }
-
-  const params = new URLSearchParams({
-    client_id: cfg.clientId,
-    response_type: 'code',
-    redirect_uri: cfg.redirectUri,
-    state,
-    scope: 'user-read-private user-top-read playlist-read-private playlist-read-collaborative',
-    show_dialog: 'true',
-  });
-
-  return `https://accounts.spotify.com/authorize?${params.toString()}`;
-}
-
-export function resolvePendingState(state: string): string | null {
-  const entry = pendingStates.get(state);
-  if (!entry) return null;
-  pendingStates.delete(state);
-  return entry.sessionKey;
-}
-
-export async function exchangeSpotifyCode(code: string, sessionKey: string): Promise<SpotifyOAuthSession> {
-  const cfg = getSpotifyConfig();
-  if (!cfg.configured) {
-    throw new Error('Credenciais do Spotify não configuradas no servidor.');
-  }
-
-  const basicAuth = Buffer.from(`${cfg.clientId}:${cfg.clientSecret}`).toString('base64');
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: cfg.redirectUri,
-  });
-
-  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${basicAuth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
-  });
-
-  if (!tokenRes.ok) {
-    const errText = await tokenRes.text();
-    throw new Error(`Falha ao autenticar no Spotify: ${errText}`);
-  }
-
-  const tokenData = (await tokenRes.json()) as {
-    access_token: string;
-    refresh_token?: string;
-    expires_in: number;
-  };
-
-  // Fetch public display profile without storing personal credentials on disk
-  let displayName = 'Conta Spotify conectada';
-  let spotifyUserId = '';
-  let spotifyUrl = '';
+async function searchItunes(
+  query: string,
+  entity: 'song' | 'album' | 'musicArtist',
+  limit = 8
+): Promise<any[]> {
   try {
-    const meRes = await fetch('https://api.spotify.com/v1/me', {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    const sp = new URLSearchParams({
+      term: query,
+      media: 'music',
+      entity,
+      country: 'BR',
+      limit: String(limit),
     });
-    if (meRes.ok) {
-      const me = (await meRes.json()) as {
-        id: string;
-        display_name?: string;
-        external_urls?: { spotify?: string };
-      };
-      displayName = me.display_name || me.id;
-      spotifyUserId = me.id;
-      spotifyUrl = me.external_urls?.spotify || '';
-    }
+    const res = await fetch(`https://itunes.apple.com/search?${sp.toString()}`);
+    if (!res.ok) return [];
+    const data = (await res.json()) as { results?: any[] };
+    return Array.isArray(data.results) ? data.results : [];
   } catch {
-    // ignore profile read failure
+    return [];
   }
-
-  const session: SpotifyOAuthSession = {
-    accessToken: tokenData.access_token,
-    refreshToken: tokenData.refresh_token,
-    expiresAt: Date.now() + (tokenData.expires_in - 60) * 1000,
-    displayName,
-    spotifyUserId,
-    spotifyUrl,
-  };
-
-  oauthSessions.set(sessionKey, session);
-  return session;
 }
 
-async function refreshUserSession(sessionKey: string, session: SpotifyOAuthSession): Promise<string | null> {
-  if (!session.refreshToken) return null;
-  const cfg = getSpotifyConfig();
-  if (!cfg.configured) return null;
-
-  const basicAuth = Buffer.from(`${cfg.clientId}:${cfg.clientSecret}`).toString('base64');
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: session.refreshToken,
-  });
-
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${basicAuth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
-  });
-
-  if (!res.ok) {
-    oauthSessions.delete(sessionKey);
-    return null;
+async function searchDeezer(
+  query: string,
+  kind: 'track' | 'album' | 'artist',
+  limit = 8
+): Promise<any[]> {
+  try {
+    const res = await fetch(
+      `https://api.deezer.com/search/${kind}?q=${encodeURIComponent(query)}&limit=${limit}`
+    );
+    if (!res.ok) return [];
+    const data = (await res.json()) as { data?: any[] };
+    return Array.isArray(data.data) ? data.data : [];
+  } catch {
+    return [];
   }
-
-  const data = (await res.json()) as {
-    access_token: string;
-    expires_in: number;
-    refresh_token?: string;
-  };
-
-  session.accessToken = data.access_token;
-  session.expiresAt = Date.now() + (data.expires_in - 60) * 1000;
-  if (data.refresh_token) session.refreshToken = data.refresh_token;
-  oauthSessions.set(sessionKey, session);
-  return session.accessToken;
 }
 
-export async function getUserSpotifyToken(sessionKey: string): Promise<string | null> {
-  const session = oauthSessions.get(sessionKey);
-  if (!session) return null;
-  if (Date.now() < session.expiresAt) return session.accessToken;
-  return refreshUserSession(sessionKey, session);
+function upscaleArtwork(url?: string): string {
+  if (!url) return '';
+  return url.replace(/100x100bb/g, '400x400bb');
 }
 
-export function getUserSpotifyStatus(sessionKey: string) {
-  const cfg = getSpotifyConfig();
-  const session = oauthSessions.get(sessionKey);
+function mapItunesTrack(item: any): SpotifyItemRef {
   return {
-    configured: cfg.configured,
-    redirectUri: cfg.redirectUri,
-    connected: Boolean(session),
-    account: session
-      ? {
-          displayName: session.displayName,
-          spotifyUserId: session.spotifyUserId,
-          spotifyUrl: session.spotifyUrl,
-        }
-      : null,
-  };
-}
-
-export function disconnectSpotifySession(sessionKey: string) {
-  oauthSessions.delete(sessionKey);
-}
-
-async function getClientCredentialsToken(): Promise<string | null> {
-  const cfg = getSpotifyConfig();
-  if (!cfg.configured) return null;
-
-  if (clientCredentialsCache && Date.now() < clientCredentialsCache.expiresAt) {
-    return clientCredentialsCache.accessToken;
-  }
-
-  const basicAuth = Buffer.from(`${cfg.clientId}:${cfg.clientSecret}`).toString('base64');
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${basicAuth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-
-  if (!res.ok) return null;
-  const data = (await res.json()) as { access_token: string; expires_in: number };
-  clientCredentialsCache = {
-    accessToken: data.access_token,
-    expiresAt: Date.now() + (data.expires_in - 60) * 1000,
-  };
-  return clientCredentialsCache.accessToken;
-}
-
-function mapTrack(t: any): SpotifyItemRef {
-  return {
-    id: t.id,
+    id: `itunes_track_${item.trackId}`,
     type: 'track',
-    name: t.name,
-    subtitle: `${(t.artists || []).map((a: any) => a.name).join(', ')}${t.album?.name ? ` · ${t.album.name}` : ''}`,
-    imageUrl: t.album?.images?.[0]?.url || '',
-    spotifyUrl: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
-    embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator`,
-    durationMs: t.duration_ms,
-    releaseDate: t.album?.release_date,
+    name: item.trackName || 'Faixa sem título',
+    subtitle: `${item.artistName || 'Artista'}${item.collectionName ? ` · ${item.collectionName}` : ''}`,
+    imageUrl: upscaleArtwork(item.artworkUrl100 || item.artworkUrl60),
+    spotifyUrl: item.trackViewUrl || item.collectionViewUrl || '',
+    embedUrl: item.previewUrl || '',
+    durationMs: item.trackTimeMillis,
+    releaseDate: item.releaseDate ? String(item.releaseDate).slice(0, 10) : undefined,
   };
 }
 
-function mapArtist(a: any): SpotifyItemRef {
+function mapItunesAlbum(item: any): SpotifyItemRef {
   return {
-    id: a.id,
-    type: 'artist',
-    name: a.name,
-    subtitle: (a.genres || []).slice(0, 2).join(' · ') || 'Artista no Spotify',
-    imageUrl: a.images?.[0]?.url || '',
-    spotifyUrl: a.external_urls?.spotify || `https://open.spotify.com/artist/${a.id}`,
-    embedUrl: `https://open.spotify.com/embed/artist/${a.id}?utm_source=generator`,
-  };
-}
-
-function mapAlbum(al: any): SpotifyItemRef {
-  return {
-    id: al.id,
+    id: `itunes_album_${item.collectionId}`,
     type: 'album',
-    name: al.name,
-    subtitle: `${(al.artists || []).map((a: any) => a.name).join(', ')}${al.release_date ? ` · ${al.release_date.slice(0, 4)}` : ''}`,
-    imageUrl: al.images?.[0]?.url || '',
-    spotifyUrl: al.external_urls?.spotify || `https://open.spotify.com/album/${al.id}`,
-    embedUrl: `https://open.spotify.com/embed/album/${al.id}?utm_source=generator`,
-    releaseDate: al.release_date,
+    name: item.collectionName || 'Álbum sem título',
+    subtitle: `${item.artistName || 'Artista'}${item.releaseDate ? ` · ${String(item.releaseDate).slice(0, 4)}` : ''}`,
+    imageUrl: upscaleArtwork(item.artworkUrl100 || item.artworkUrl60),
+    spotifyUrl: item.collectionViewUrl || '',
+    embedUrl: '',
+    releaseDate: item.releaseDate ? String(item.releaseDate).slice(0, 10) : undefined,
   };
 }
 
-function mapPlaylist(pl: any): SpotifyItemRef {
+function mapItunesArtist(item: any): SpotifyItemRef {
   return {
-    id: pl.id,
-    type: 'playlist',
-    name: pl.name,
-    subtitle: pl.owner?.display_name ? `Por ${pl.owner.display_name}` : 'Playlist no Spotify',
-    imageUrl: pl.images?.[0]?.url || '',
-    spotifyUrl: pl.external_urls?.spotify || `https://open.spotify.com/playlist/${pl.id}`,
-    embedUrl: `https://open.spotify.com/embed/playlist/${pl.id}?utm_source=generator`,
+    id: `itunes_artist_${item.artistId}`,
+    type: 'artist',
+    name: item.artistName || 'Artista',
+    subtitle: item.primaryGenreName || 'Música',
+    imageUrl: '',
+    spotifyUrl: item.artistLinkUrl || '',
+    embedUrl: '',
   };
 }
 
+function mapDeezerTrack(item: any): SpotifyItemRef {
+  return {
+    id: `dz_track_${item.id}`,
+    type: 'track',
+    name: item.title || 'Faixa sem título',
+    subtitle: `${item.artist?.name || 'Artista'}${item.album?.title ? ` · ${item.album.title}` : ''}`,
+    imageUrl: item.album?.cover_medium || item.album?.cover || '',
+    spotifyUrl: item.link || '',
+    embedUrl: item.preview || '',
+    durationMs: typeof item.duration === 'number' ? item.duration * 1000 : undefined,
+  };
+}
+
+function mapDeezerAlbum(item: any): SpotifyItemRef {
+  return {
+    id: `dz_album_${item.id}`,
+    type: 'album',
+    name: item.title || 'Álbum sem título',
+    subtitle: item.artist?.name || 'Artista',
+    imageUrl: item.cover_medium || item.cover || '',
+    spotifyUrl: item.link || '',
+    embedUrl: '',
+  };
+}
+
+function mapDeezerArtist(item: any): SpotifyItemRef {
+  return {
+    id: `dz_artist_${item.id}`,
+    type: 'artist',
+    name: item.name || 'Artista',
+    subtitle: 'Artista musical',
+    imageUrl: item.picture_medium || item.picture || '',
+    spotifyUrl: item.link || '',
+    embedUrl: '',
+  };
+}
+
+/**
+ * Keyless public music catalog search (iTunes + Deezer fallback).
+ */
 export async function searchSpotifyCatalog(
   query: string,
   types: ('track' | 'artist' | 'album' | 'playlist')[],
-  sessionKey: string
+  _sessionKey?: string
 ) {
-  const token = (await getUserSpotifyToken(sessionKey)) || (await getClientCredentialsToken());
-  if (!token) {
-    throw new Error('Spotify Web API não configurada. Adicione SPOTIFY_CLIENT_ID e SPOTIFY_CLIENT_SECRET.');
-  }
+  const wantTrack = types.includes('track');
+  const wantAlbum = types.includes('album');
+  const wantArtist = types.includes('artist');
 
-  const sp = new URLSearchParams({
-    q: query,
-    type: types.join(','),
-    limit: '8',
-    market: 'BR',
-  });
-
-  const res = await fetch(`https://api.spotify.com/v1/search?${sp.toString()}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Erro na pesquisa do Spotify (${res.status}): ${errText}`);
-  }
-
-  const data = (await res.json()) as any;
-  return {
-    tracks: (data.tracks?.items || []).filter(Boolean).map(mapTrack),
-    artists: (data.artists?.items || []).filter(Boolean).map(mapArtist),
-    albums: (data.albums?.items || []).filter(Boolean).map(mapAlbum),
-    playlists: (data.playlists?.items || []).filter(Boolean).map(mapPlaylist),
-  };
-}
-
-export async function getSpotifyPersonalDiscoveries(sessionKey: string) {
-  const token = await getUserSpotifyToken(sessionKey);
-  if (!token) {
-    return {
-      connected: false,
-      topTracks: [] as SpotifyItemRef[],
-      topArtists: [] as SpotifyItemRef[],
-      playlists: [] as SpotifyItemRef[],
-    };
-  }
-
-  const [tracksRes, artistsRes, playlistsRes] = await Promise.all([
-    fetch('https://api.spotify.com/v1/me/top/tracks?limit=8&time_range=medium_term', {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-    fetch('https://api.spotify.com/v1/me/top/artists?limit=8&time_range=medium_term', {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-    fetch('https://api.spotify.com/v1/me/playlists?limit=8', {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+  const [itTracks, itAlbums, itArtists, dzTracks, dzAlbums, dzArtists] = await Promise.all([
+    wantTrack ? searchItunes(query, 'song') : Promise.resolve([]),
+    wantAlbum ? searchItunes(query, 'album') : Promise.resolve([]),
+    wantArtist ? searchItunes(query, 'musicArtist') : Promise.resolve([]),
+    wantTrack ? searchDeezer(query, 'track') : Promise.resolve([]),
+    wantAlbum ? searchDeezer(query, 'album') : Promise.resolve([]),
+    wantArtist ? searchDeezer(query, 'artist') : Promise.resolve([]),
   ]);
 
-  const topTracks = tracksRes.ok ? (((await tracksRes.json()) as any).items || []).map(mapTrack) : [];
-  const topArtists = artistsRes.ok ? (((await artistsRes.json()) as any).items || []).map(mapArtist) : [];
-  const playlists = playlistsRes.ok ? (((await playlistsRes.json()) as any).items || []).filter(Boolean).map(mapPlaylist) : [];
+  const tracks = itTracks.length > 0 ? itTracks.map(mapItunesTrack) : dzTracks.map(mapDeezerTrack);
+  const albums = itAlbums.length > 0 ? itAlbums.map(mapItunesAlbum) : dzAlbums.map(mapDeezerAlbum);
+  const artists = dzArtists.length > 0 ? dzArtists.map(mapDeezerArtist) : itArtists.map(mapItunesArtist);
 
   return {
-    connected: true,
-    topTracks,
-    topArtists,
-    playlists,
+    tracks,
+    artists,
+    albums,
+    playlists: [] as SpotifyItemRef[],
   };
 }

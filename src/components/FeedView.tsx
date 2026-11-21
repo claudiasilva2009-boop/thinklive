@@ -16,6 +16,7 @@ import { PostWithAuthor, SeasonId, TopCategory, UserPublic } from '../types/thin
 import { AutumnLeafAccent, BotanicalDivider } from './CreativeStickers';
 import { UserAvatar } from './ImageWithFallback';
 import { PostCard } from './PostCard';
+import { useSiteConfig } from './SiteConfigContext';
 import { TabEditorialHero } from './TabEditorialHero';
 
 interface FeedViewProps {
@@ -83,6 +84,10 @@ export function FeedView({
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('recentes');
   const [heroQuery, setHeroQuery] = useState('');
   const feedSectionRef = useRef<HTMLDivElement>(null);
+  const { siteConfig } = useSiteConfig();
+
+  const homeHero = siteConfig.homeHero;
+  const pinnedIds = new Set(siteConfig.pinnedPostIds || []);
 
   const filteredPosts = posts
     .filter((p) => {
@@ -104,6 +109,9 @@ export function FeedView({
       return true;
     })
     .sort((a, b) => {
+      const aPinned = pinnedIds.has(a.id) ? 1 : 0;
+      const bPinned = pinnedIds.has(b.id) ? 1 : 0;
+      if (aPinned !== bPinned) return bPinned - aPinned;
       if (feedFilter === 'populares') {
         return b.likesCount + b.commentsCount * 2 - (a.likesCount + a.commentsCount * 2);
       }
@@ -119,6 +127,18 @@ export function FeedView({
     feedSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  const homeHeroImage =
+    homeHero?.imageUrl?.trim() || '/assets/aistudio/9fd160e7c0d4a8752b0bcf5efb0368d5_6320ae24.jpg';
+  const homeEditionLabel =
+    homeHero?.editionLabel?.trim() || getSeasonTheme(activeSeason).editionLabel;
+  const homeHeadline = homeHero?.headline?.trim() || 'Palavras guardadas com calma para ler,';
+  const homeHighlightText = homeHero?.highlightText?.trim() || 'escutar e lembrar';
+  const homeDescription =
+    homeHero?.description?.trim() ||
+    'Uma revista social e refúgio editorial para reunir poemas, fotografias autorais, crônicas de cinema, estantes literárias e cadernos pessoais sem a pressa das redes comuns.';
+  const homeQuote =
+    homeHero?.quote?.trim() || '“Ler devagar é devolver ao tempo a sua espessura.”';
+
   return (
     <div className="pb-28 space-y-10">
       {/* 1. LUXURY EDITORIAL FULL-BLEED OPENING (NO boxy square image grids) */}
@@ -126,8 +146,9 @@ export function FeedView({
         <section className="relative w-full min-h-[470px] md:min-h-[540px] flex items-center overflow-hidden border-b border-tl-marrom/14">
           {/* Full-screen cinematic literary backdrop */}
           <img
-            src="/assets/aistudio/9fd160e7c0d4a8752b0bcf5efb0368d5_6320ae24.jpg"
-            alt="Cisne branco deslizando em lago escuro cercado por árvores outonais douradas"
+            src={homeHeroImage}
+            alt="Imagem principal da capa editorial da Thinklive"
+            referrerPolicy="no-referrer"
             className="absolute inset-0 w-full h-full object-cover object-[center_68%] scale-[1.02] transition-transform duration-1000"
           />
 
@@ -162,23 +183,28 @@ export function FeedView({
                 <AutumnLeafAccent className="w-4 h-4 text-[#DF9457]" />
                 <span>
                   {currentUser
-                    ? `${getTimeGreeting()}, ${currentUser.displayName.split(' ')[0]} · ${getSeasonTheme(activeSeason).editionLabel}`
-                    : `${getTimeGreeting()} · ${getSeasonTheme(activeSeason).editionLabel}`}
+                    ? `${getTimeGreeting()}, ${currentUser.displayName.split(' ')[0]} · ${homeEditionLabel}`
+                    : `${getTimeGreeting()} · ${homeEditionLabel}`}
                 </span>
               </div>
 
               <h1 className="font-editorial text-4xl sm:text-5xl md:text-[58px] font-semibold text-[#FAF5EC] leading-[1.06] tracking-tight text-balance">
-                Palavras guardadas com calma para ler,{' '}
-                <span className="italic text-[#F2B880]">escutar e lembrar</span>.
+                {homeHeadline}{' '}
+                {homeHighlightText && (
+                  <span className="italic text-[#F2B880]">{homeHighlightText}</span>
+                )}
+                .
               </h1>
 
               <p className="font-literary text-[15px] md:text-[17px] text-[#F3EBDD]/90 leading-[1.7] max-w-xl">
-                Uma revista social e refúgio editorial para reunir poemas, fotografias autorais, crônicas de cinema, estantes literárias e cadernos pessoais sem a pressa das redes comuns.
+                {homeDescription}
               </p>
 
-              <p className="font-editorial italic text-base md:text-lg text-[#EAD2B5]/95">
-                “Ler devagar é devolver ao tempo a sua espessura.”
-              </p>
+              {homeQuote && (
+                <p className="font-editorial italic text-base md:text-lg text-[#EAD2B5]/95">
+                  {homeQuote}
+                </p>
+              )}
 
               {/* Search & Primary Exploration Controls */}
               <div className="pt-2 space-y-4">

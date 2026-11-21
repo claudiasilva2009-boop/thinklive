@@ -7,6 +7,7 @@ import { BooksHubView } from './components/BooksHubView';
 import { BottomNav, MainTab } from './components/BottomNav';
 import { CulturalHubView } from './components/CulturalHubView';
 import { CustomizeSpaceModal } from './components/CustomizeSpaceModal';
+import { DeveloperAdminModal } from './components/DeveloperAdminModal';
 import { DiaryHubView } from './components/DiaryHubView';
 import { ExploreSearchView } from './components/ExploreSearchView';
 import { FavoritesView } from './components/FavoritesView';
@@ -22,6 +23,7 @@ import { ProfileView } from './components/ProfileView';
 import { PublishEditorModal } from './components/PublishEditorModal';
 import { ReportModal } from './components/ReportModal';
 import { SeasonalAtmosphereBackground } from './components/SeasonalAtmosphereBackground';
+import { SiteConfigProvider, useSiteConfig } from './components/SiteConfigContext';
 import { TopBar } from './components/TopBar';
 import { WorkDetailView } from './components/WorkDetailView';
 import { api } from './lib/api';
@@ -30,8 +32,22 @@ import {
   syncGuestBookShelvesToAccount,
 } from './lib/bookLibrary';
 import { initAutumnHoverGlow } from './lib/hoverGlow';
-import { applySeasonToDocument, getSeasonTheme, getStoredSeason, normalizeSeasonId } from './lib/themes';
+import { applySeasonToDocument, getStoredSeason, normalizeSeasonId } from './lib/themes';
 import { NotificationEnriched, PostWithAuthor, SeasonId, TopCategory, UserPublic } from './types/thinklive';
+
+function sanitizeBannerHref(url?: string): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('/')) return trimmed;
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return trimmed;
+  } catch {
+    return null;
+  }
+  return null;
+}
 
 type AppPage =
   | { kind: 'feed'; category: TopCategory }
@@ -48,7 +64,9 @@ type AppPage =
   | { kind: 'profile'; username: string }
   | { kind: 'explore'; mode: 'explore' | 'search'; initialQuery?: string };
 
-export default function App() {
+function AppContent() {
+  const { siteConfig, adminStatus, refreshSiteConfig, refreshAdminStatus, activateDevToken } =
+    useSiteConfig();
   const [currentUser, setCurrentUser] = useState<UserPublic | null>(null);
   const [page, setPage] = useState<AppPage>({ kind: 'feed', category: 'Início' });
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
@@ -62,6 +80,7 @@ export default function App() {
   const [editingPost, setEditingPost] = useState<PostWithAuthor | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [devAdminOpen, setDevAdminOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState<{
     type: 'post' | 'user' | 'comment';
     id: string;
@@ -139,6 +158,36 @@ export default function App() {
   useEffect(() => {
     return initAutumnHoverGlow();
   }, []);
+
+  // Secret developer triggers: URL hash (#dev-adm) & keyboard shortcut (Ctrl+Shift+D / Cmd+Shift+D)
+  useEffect(() => {
+    function checkHash() {
+      if (window.location.hash === '#dev-adm') {
+        setDevAdminOpen(true);
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+    function handleShortcut(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        setDevAdminOpen(true);
+      }
+    }
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    window.addEventListener('keydown', handleShortcut);
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('keydown', handleShortcut);
+    };
+  }, []);
+
+  // Apply siteConfig default season for visitors who haven't customized their personal season
+  useEffect(() => {
+    if (!currentUser?.customization?.seasonTheme && siteConfig.defaultSeason) {
+      setActiveSeason(normalizeSeasonId(siteConfig.defaultSeason));
+    }
+  }, [currentUser?.customization?.seasonTheme, siteConfig.defaultSeason]);
 
   function handleSelectCategory(cat: TopCategory) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -313,6 +362,10 @@ export default function App() {
   const effectiveAtmosphereSeason =
     page.kind === 'profile' && viewedProfileSeason ? viewedProfileSeason : activeSeason;
 
+  const isDeveloperSession = adminStatus.unlocked || Boolean(currentUser?.isDeveloperAdmin);
+  const announcement = siteConfig.announcement;
+  const safeBannerLink = sanitizeBannerHref(announcement?.linkUrl);
+
   return (
     <AmbientSoundProvider>
     <div className="min-h-screen autumn-paper-canvas text-tl-marrom flex flex-col relative">
@@ -337,7 +390,40 @@ export default function App() {
           isExploreActive={page.kind === 'explore'}
           isActivityActive={page.kind === 'activity'}
           transparentHome={page.kind === 'feed' && page.category === 'Início'}
+          hiddenCategories={siteConfig.hiddenCategories}
+          brandName={siteConfig.brandName}
+          brandTagline={siteConfig.brandTagline}
+          showDeveloperButton={isDeveloperSession}
+          onOpenDeveloperAdmin={() => setDevAdminOpen(true)}
         />
+
+        {announcement?.enabled && announcement.message?.trim() && (
+          <div
+            role="region"
+            aria-label="Aviso editorial"
+            className={`w-full border-b px-4 py-2 text-center text-xs md:text-[13px] ${
+              announcement.tone === 'terracota'
+                ? 'bg-tl-terracota text-[#FAF5EC] border-tl-marrom/20'
+                : announcement.tone === 'dark'
+                ? 'bg-tl-marrom text-[#FAF5EC] border-[#F2B880]/25'
+                : 'bg-tl-areia/75 text-tl-marrom border-tl-marrom/15'
+            }`}
+          >
+            <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+              <span className="font-literary">{announcement.message}</span>
+              {safeBannerLink && announcement.linkLabel?.trim() && (
+                <a
+                  href={safeBannerLink}
+                  target={safeBannerLink.startsWith('http') ? '_blank' : undefined}
+                  rel={safeBannerLink.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="underline underline-offset-4 font-semibold hover:opacity-85"
+                >
+                  {announcement.linkLabel}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         <main key={pageTransitionKey} className="flex-1 animate-page-enter">
           {page.kind === 'feed' && (
@@ -703,9 +789,15 @@ export default function App() {
           }
           loadNotifications(user);
           loadFeedData();
+          refreshAdminStatus();
           setProfileRefreshSignal((s) => s + 1);
-          if (user) showToast(`Conectado como ${user.displayName}.`);
-          else showToast('Sessão encerrada.');
+          if (user) {
+            showToast(`Conectado como ${user.displayName}.`);
+          } else {
+            api.lockAdmin().catch(() => {});
+            activateDevToken(null);
+            showToast('Sessão encerrada.');
+          }
         }}
       />
 
@@ -734,6 +826,22 @@ export default function App() {
         onSubmitted={(msg) => showToast(msg)}
       />
 
+      <DeveloperAdminModal
+        isOpen={devAdminOpen}
+        onClose={() => setDevAdminOpen(false)}
+        currentUser={currentUser}
+        onUserUpdated={(updated) => {
+          setCurrentUser(updated);
+          refreshAdminStatus();
+        }}
+        onSiteDataChanged={() => {
+          refreshSiteConfig();
+          loadFeedData();
+          setProfileRefreshSignal((s) => s + 1);
+        }}
+        onNotify={showToast}
+      />
+
       <GlobalAmbientSoundWidget />
 
       {/* Autumn Editorial Toast Banner */}
@@ -747,5 +855,13 @@ export default function App() {
       )}
     </div>
     </AmbientSoundProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <SiteConfigProvider>
+      <AppContent />
+    </SiteConfigProvider>
   );
 }

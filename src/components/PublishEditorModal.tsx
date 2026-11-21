@@ -200,9 +200,9 @@ export function PublishEditorModal({
           ? res.artists
           : res.playlists;
       setSpotifyResults(list || []);
-      if (!list || list.length === 0) setSpotifyNote('Nenhum resultado encontrado no Spotify.');
+      if (!list || list.length === 0) setSpotifyNote('Nenhum resultado encontrado no catálogo musical.');
     } catch (err) {
-      setSpotifyNote(err instanceof Error ? err.message : 'Spotify indisponível no momento.');
+      setSpotifyNote(err instanceof Error ? err.message : 'Catálogo musical indisponível no momento.');
     } finally {
       setSpotifySearching(false);
     }
@@ -601,7 +601,7 @@ export function PublishEditorModal({
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-tl-terracota flex items-center gap-1.5">
                   <Disc3 className="w-4 h-4" />
-                  <span>Trilha sonora / Spotify (opcional)</span>
+                  <span>Trilha sonora (opcional)</span>
                 </span>
                 <button
                   type="button"
@@ -627,13 +627,12 @@ export function PublishEditorModal({
                       <option value="track">Faixa</option>
                       <option value="album">Álbum</option>
                       <option value="artist">Artista</option>
-                      <option value="playlist">Playlist</option>
                     </select>
                     <input
                       type="text"
                       value={spotifyQuery}
                       onChange={(e) => setSpotifyQuery(e.target.value)}
-                      placeholder="Buscar música ou álbum no Spotify…"
+                      placeholder="Buscar música, álbum ou artista…"
                       className="flex-1 min-w-[180px] rounded-xl bg-tl-creme border border-tl-marrom/15 px-3 py-2 text-xs text-tl-marrom"
                     />
                     <button

@@ -25,10 +25,17 @@ import {
   SavedItemEnriched,
   SavedItemRecord,
   Shelf,
+  SiteConfigPublic,
   UserPodcastState,
   UserPublic,
   UserRecord,
 } from '../src/types/thinklive';
+
+export interface SiteConfigRecord extends SiteConfigPublic {
+  developerUserId?: string | null;
+  developerEmail?: string | null;
+  developerPasscodeHash?: string | null;
+}
 
 export interface DatabaseSchema {
   users: UserRecord[];
@@ -50,6 +57,7 @@ export interface DatabaseSchema {
   diaryEntries: DiaryEntry[];
   diaryLikes: { userId: string; entryId: string; createdAt: string }[];
   podcastStates: UserPodcastState[];
+  siteConfig?: SiteConfigRecord;
 }
 
 export const IS_VERCEL = Boolean(process.env.VERCEL || process.env.NOW_REGION);
@@ -754,6 +762,70 @@ function createSeedDatabase(): DatabaseSchema {
   };
 }
 
+export function makeDefaultSiteConfig(preserveAuth?: {
+  developerUserId?: string | null;
+  developerEmail?: string | null;
+  developerPasscodeHash?: string | null;
+}): SiteConfigRecord {
+  return {
+    brandName: 'Thinklive',
+    brandTagline: '',
+    defaultSeason: 'outono',
+    announcement: {
+      enabled: false,
+      message: '',
+      linkLabel: '',
+      linkUrl: '',
+      tone: 'warm',
+    },
+    homeHero: {},
+    tabHeroes: {},
+    hiddenCategories: [],
+    pinnedPostIds: [],
+    verifiedUserIds: [],
+    updatedAt: new Date().toISOString(),
+    developerUserId: preserveAuth?.developerUserId ?? null,
+    developerEmail: preserveAuth?.developerEmail ?? null,
+    developerPasscodeHash: preserveAuth?.developerPasscodeHash ?? null,
+  };
+}
+
+export function toPublicSiteConfig(cfg?: SiteConfigRecord): SiteConfigPublic {
+  const safe = cfg || makeDefaultSiteConfig();
+  return {
+    brandName: safe.brandName || 'Thinklive',
+    brandTagline: safe.brandTagline || '',
+    defaultSeason: safe.defaultSeason || 'outono',
+    announcement: safe.announcement,
+    homeHero: safe.homeHero || {},
+    tabHeroes: safe.tabHeroes || {},
+    hiddenCategories: Array.isArray(safe.hiddenCategories) ? safe.hiddenCategories : [],
+    pinnedPostIds: Array.isArray(safe.pinnedPostIds) ? safe.pinnedPostIds : [],
+    verifiedUserIds: Array.isArray(safe.verifiedUserIds) ? safe.verifiedUserIds : [],
+    updatedAt: safe.updatedAt || new Date().toISOString(),
+  };
+}
+
+export function getOrCreateSiteConfig(): SiteConfigRecord {
+  const db = getDb();
+  if (!db.siteConfig) {
+    db.siteConfig = makeDefaultSiteConfig();
+    saveDb();
+  }
+  return db.siteConfig;
+}
+
+export function isUserDeveloperAdmin(user?: UserRecord | null): boolean {
+  if (!user) return false;
+  const envEmail = (process.env.DEVELOPER_EMAIL || '').trim().toLowerCase();
+  if (envEmail && user.email.toLowerCase() === envEmail) return true;
+  if (user.role === 'developer') return true;
+  const cfg = dbCache?.siteConfig;
+  if (cfg?.developerUserId && cfg.developerUserId === user.id) return true;
+  if (cfg?.developerEmail && cfg.developerEmail.toLowerCase() === user.email.toLowerCase()) return true;
+  return false;
+}
+
 let dbCache: DatabaseSchema | null = null;
 
 export function getDb(): DatabaseSchema {
@@ -792,6 +864,10 @@ export function getDb(): DatabaseSchema {
       }
       if (!Array.isArray(dbCache.podcastStates)) {
         dbCache.podcastStates = [];
+        changed = true;
+      }
+      if (!dbCache.siteConfig) {
+        dbCache.siteConfig = makeDefaultSiteConfig();
         changed = true;
       }
       for (const u of dbCache.users) {
@@ -941,6 +1017,7 @@ export function toPublicUser(user: UserRecord, viewerId?: string | null): UserPu
   const isBlocked = viewerId ? db.blocks.some((b) => b.blockerId === viewerId && b.blockedId === user.id) : false;
   const isSelf = viewerId === user.id;
   const canViewFullProfile = !user.isPrivate || isSelf || isFollowing;
+  const verifiedIds = db.siteConfig?.verifiedUserIds || [];
 
   const base: UserPublic = {
     id: user.id,
@@ -950,6 +1027,7 @@ export function toPublicUser(user: UserRecord, viewerId?: string | null): UserPu
     avatarUrl: user.avatarUrl,
     isPrivate: user.isPrivate,
     isDemo: user.isDemo,
+    isVerifiedBadge: verifiedIds.includes(user.id),
     customization: user.customization,
     createdAt: user.createdAt,
     followersCount,
@@ -964,6 +1042,7 @@ export function toPublicUser(user: UserRecord, viewerId?: string | null): UserPu
     base.email = user.email;
     base.passwordHint = user.passwordHint || '';
     base.preferences = user.preferences;
+    base.isDeveloperAdmin = isUserDeveloperAdmin(user);
   }
 
   return base;

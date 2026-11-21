@@ -50,7 +50,7 @@ export function SpotifyItemEmbed({ item, compact = false, onRemove }: SpotifyIte
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {compact && (
+          {compact && item.embedUrl && (
             <button
               type="button"
               onClick={(e) => {
@@ -62,16 +62,18 @@ export function SpotifyItemEmbed({ item, compact = false, onRemove }: SpotifyIte
               {showPlayer ? 'Ocultar player' : 'Ouvir prévia'}
             </button>
           )}
-          <a
-            href={item.spotifyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="autumn-glow-btn inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-medium rounded-full bg-tl-laranja text-tl-creme border border-tl-terracota/20 hover:bg-tl-terracota active:scale-95"
-          >
-            <span>Spotify</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
+          {item.spotifyUrl && (
+            <a
+              href={item.spotifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="autumn-glow-btn inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-medium rounded-full bg-tl-laranja text-tl-creme border border-tl-terracota/20 hover:bg-tl-terracota active:scale-95"
+            >
+              <span>{item.spotifyUrl.includes('spotify.com') ? 'Spotify' : 'Ouvir'}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
           {onRemove && (
             <button
               type="button"
@@ -86,16 +88,25 @@ export function SpotifyItemEmbed({ item, compact = false, onRemove }: SpotifyIte
 
       {showPlayer && item.embedUrl && (
         <div className="px-3 pb-3">
-          <iframe
-            title={`Player: ${item.name}`}
-            src={item.embedUrl}
-            width="100%"
-            height={item.type === 'track' ? 152 : 232}
-            frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            className="rounded-lg bg-tl-creme"
-          />
+          {item.embedUrl.includes('open.spotify.com/embed') ? (
+            <iframe
+              title={`Player: ${item.name}`}
+              src={item.embedUrl}
+              width="100%"
+              height={item.type === 'track' ? 152 : 232}
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="rounded-lg bg-tl-creme"
+            />
+          ) : (
+            <audio
+              controls
+              preload="none"
+              src={item.embedUrl}
+              className="w-full h-10 rounded-lg"
+            />
+          )}
         </div>
       )}
     </div>

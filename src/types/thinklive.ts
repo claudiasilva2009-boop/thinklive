@@ -153,6 +153,7 @@ export interface UserRecord {
   avatarUrl: string;
   isPrivate: boolean;
   isDemo?: boolean;
+  role?: 'user' | 'developer';
   preferences: {
     favoriteCategories: string[];
     emailNotifications: boolean;
@@ -170,6 +171,8 @@ export interface UserPublic {
   avatarUrl: string;
   isPrivate: boolean;
   isDemo?: boolean;
+  isDeveloperAdmin?: boolean;
+  isVerifiedBadge?: boolean;
   customization: ProfileCustomization;
   createdAt: string;
   followersCount: number;
@@ -591,3 +594,54 @@ export type AmbientSoundId =
   | 'mar'
   | 'vento'
   | 'natureza';
+
+// ---------------- DEVELOPER ADMIN / SITE CONFIG ----------------
+export interface TabHeroOverride {
+  title?: string;
+  phrase?: string;
+  kicker?: string;
+  imageUrl?: string;
+}
+
+export interface SiteAnnouncement {
+  enabled: boolean;
+  message: string;
+  linkLabel?: string;
+  linkUrl?: string;
+  tone?: 'warm' | 'terracota' | 'dark';
+}
+
+export interface HomeHeroConfig {
+  editionLabel?: string;
+  headline?: string;
+  highlightText?: string;
+  description?: string;
+  quote?: string;
+  imageUrl?: string;
+}
+
+export interface SiteConfigPublic {
+  brandName: string;
+  brandTagline?: string;
+  defaultSeason?: SeasonId;
+  announcement?: SiteAnnouncement;
+  homeHero?: HomeHeroConfig;
+  tabHeroes: Partial<Record<TopCategory, TabHeroOverride>>;
+  hiddenCategories: TopCategory[];
+  pinnedPostIds: string[];
+  verifiedUserIds: string[];
+  updatedAt: string;
+}
+
+export interface AdminReportView {
+  id: string;
+  reporterId: string;
+  reporterName: string;
+  targetType: 'post' | 'user' | 'comment';
+  targetId: string;
+  reason: string;
+  details: string;
+  createdAt: string;
+  resolved?: boolean;
+}
+
